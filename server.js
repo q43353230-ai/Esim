@@ -2805,6 +2805,19 @@ app.use(express.static('public', {
     etag: true,
     lastModified: true,
 }));
+// ملفات HTML في الجذر
+app.get('/admini.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admini.html'));
+});
+
+app.get('/esimPanel.html', (req, res) => {
+    res.sendFile(path.join(__dirname, 'esimPanel.html'));
+});
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, 'esimPanel.html'));
+});
+
 
 // ================================================================
 // معالجة الأخطاء (Error Handling)
