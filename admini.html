@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>eSIM - لوحة تحكم المسؤول</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        /* نفس أنماط العميل مع تعديلات للوحة التحكم */
+        * { margin:0; padding:0; box-sizing:border-box; font-family:'Tajawal',sans-serif; }
+        :root {
+            --primary: #6C3CE1;
+            --primary-dark: #5B2FC7;
+            --primary-light: #8B6CF2;
+            --secondary: #00D4AA;
+            --danger: #FF3D71;
+            --warning: #FFB800;
+            --info: #2D9CDB;
+            --dark: #0A0A15;
+            --dark-card: #16213E;
+            --dark-bg: #0A0A15;
+            --gray: #8A8FA3;
+            --light: #E8EAF6;
+            --white: #FFFFFF;
+            --shadow: 0 8px 32px rgba(108,60,225,0.3);
+            --radius: 20px;
+            --radius-sm: 12px;
+            --transition: all 0.3s cubic-bezier(0.4,0,0.2,1);
+            --glass-bg: rgba(255,255,255,0.03);
+            --glass-border: rgba(255,255,255,0.06);
+        }
+        body { background: var(--dark-bg); color: var(--light); min-height: 100vh; padding: 20px; }
+        .admin-container { max-width: 1400px; margin: 0 auto; }
+        .hidden { display: none !important; }
+        
+        /* شريط علوي */
+        .admin-header { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius); margin-bottom:24px; flex-wrap:wrap; gap:12px; }
+        .admin-header .logo { font-size:22px; font-weight:900; background:linear-gradient(135deg, var(--primary-light), var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+        .admin-header .logo i { -webkit-text-fill-color:var(--primary-light); }
+        .admin-header .admin-info { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+        .admin-header .admin-info .badge { background:var(--primary); padding:4px 12px; border-radius:20px; font-size:12px; font-weight:600; color:white; }
+        .admin-header .logout-btn { background:rgba(255,61,113,0.15); border:1px solid rgba(255,61,113,0.2); color:var(--danger); padding:8px 16px; border-radius:var(--radius-sm); cursor:pointer; transition:var(--transition); font-weight:600; font-size:14px; }
+        .admin-header .logout-btn:hover { background:rgba(255,61,113,0.25); }
+        
+        /* بطاقات الإحصائيات */
+        .stats-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(160px,1fr)); gap:16px; margin-bottom:24px; }
+        .stat-card { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-sm); padding:16px 18px; transition:var(--transition); }
+        .stat-card:hover { border-color:rgba(255,255,255,0.1); transform:translateY(-2px); }
+        .stat-card .stat-icon { font-size:18px; color:var(--primary-light); margin-bottom:4px; }
+        .stat-card .stat-number { font-size:26px; font-weight:800; color:var(--light); }
+        .stat-card .stat-label { font-size:12px; color:var(--gray); }
+        
+        /* تبويبات */
+        .tabs { display:flex; gap:4px; background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius-sm); padding:4px; margin-bottom:24px; overflow-x:auto; flex-wrap:nowrap; }
+        .tab-btn { padding:10px 20px; background:transparent; border:none; color:var(--gray); font-weight:600; font-size:14px; border-radius:var(--radius-sm); cursor:pointer; transition:var(--transition); white-space:nowrap; }
+        .tab-btn:hover { color:var(--light); background:rgba(255,255,255,0.05); }
+        .tab-btn.active { background:var(--primary); color:white; box-shadow:0 4px 15px rgba(108,60,225,0.3); }
+        .tab-btn .badge { background:rgba(255,255,255,0.15); padding:1px 8px; border-radius:12px; font-size:11px; margin-right:4px; }
+        .tab-content { display:none; }
+        .tab-content.active { display:block; }
+        
+        /* جداول */
+        .table-container { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius); overflow:hidden; }
+        .table-container .table-header { padding:16px 20px; border-bottom:1px solid var(--glass-border); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+        .table-container .table-header h3 { font-size:16px; font-weight:700; }
+        .table-container .table-header .filters { display:flex; gap:8px; flex-wrap:wrap; }
+        .table-container .table-header .filters select, .table-container .table-header .filters input { padding:6px 12px; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius:var(--radius-sm); color:var(--light); font-size:13px; outline:none; }
+        .table-container .table-header .filters select:focus, .table-container .table-header .filters input:focus { border-color:var(--primary); }
+        .table-scroll { overflow-x:auto; padding:0 4px 4px; }
+        table { width:100%; border-collapse:collapse; font-size:13px; }
+        table thead { background:rgba(255,255,255,0.03); }
+        table th { padding:10px 14px; text-align:right; font-weight:600; color:var(--gray); border-bottom:1px solid var(--glass-border); font-size:12px; white-space:nowrap; }
+        table td { padding:10px 14px; border-bottom:1px solid rgba(255,255,255,0.03); vertical-align:middle; }
+        table tbody tr:hover { background:rgba(255,255,255,0.02); }
+        .status-badge { padding:3px 12px; border-radius:20px; font-size:11px; font-weight:600; }
+        .status-badge.pending { background:rgba(255,184,0,0.15); color:var(--warning); }
+        .status-badge.accepted { background:rgba(0,212,170,0.15); color:var(--secondary); }
+        .status-badge.rejected { background:rgba(255,61,113,0.15); color:var(--danger); }
+        .status-badge.delivered { background:rgba(45,156,219,0.15); color:var(--info); }
+        .status-badge.completed { background:rgba(0,212,170,0.15); color:var(--secondary); }
+        .status-badge.expired { background:rgba(255,255,255,0.05); color:var(--gray); }
+        
+        /* أزرار الإجراءات */
+        .action-btns { display:flex; gap:4px; flex-wrap:wrap; }
+        .action-btns button { padding:3px 10px; border:none; border-radius:4px; font-size:11px; font-weight:600; cursor:pointer; transition:var(--transition); }
+        .btn-accept { background:rgba(0,212,170,0.15); color:var(--secondary); }
+        .btn-accept:hover { background:rgba(0,212,170,0.25); }
+        .btn-reject { background:rgba(255,61,113,0.15); color:var(--danger); }
+        .btn-reject:hover { background:rgba(255,61,113,0.25); }
+        .btn-view { background:rgba(108,60,225,0.15); color:var(--primary-light); }
+        .btn-view:hover { background:rgba(108,60,225,0.25); }
+        .btn-complete { background:rgba(45,156,219,0.15); color:var(--info); }
+        .btn-complete:hover { background:rgba(45,156,219,0.25); }
+        .btn-deliver { background:rgba(0,212,170,0.15); color:var(--secondary); }
+        .btn-deliver:hover { background:rgba(0,212,170,0.25); }
+        
+        /* مودال */
+        .modal-overlay { position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); display:none; justify-content:center; align-items:center; z-index:1000; padding:20px; }
+        .modal-overlay.active { display:flex; }
+        .modal-box { background:var(--dark-card); border:1px solid var(--glass-border); border-radius:var(--radius); padding:28px 24px; max-width:560px; width:100%; max-height:90vh; overflow-y:auto; box-shadow:0 20px 60px rgba(0,0,0,0.6); }
+        .modal-box .modal-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+        .modal-box .modal-header h3 { font-size:20px; font-weight:700; display:flex; align-items:center; gap:10px; }
+        .modal-box .modal-close { background:rgba(255,255,255,0.05); border:none; color:var(--gray); width:36px; height:36px; border-radius:50%; font-size:18px; cursor:pointer; transition:var(--transition); }
+        .modal-box .modal-close:hover { background:rgba(255,255,255,0.1); color:white; }
+        .modal-box .form-group { margin-bottom:16px; }
+        .modal-box .form-group label { display:block; font-size:13px; font-weight:500; color:var(--gray); margin-bottom:6px; }
+        .modal-box .form-group input, .modal-box .form-group select, .modal-box .form-group textarea { width:100%; padding:10px 14px; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius:var(--radius-sm); color:var(--light); font-size:14px; transition:var(--transition); outline:none; }
+        .modal-box .form-group input:focus, .modal-box .form-group select:focus, .modal-box .form-group textarea:focus { border-color:var(--primary); }
+        .modal-box .form-group textarea { resize:vertical; min-height:80px; }
+        .modal-box .btn { padding:10px 24px; border:none; border-radius:var(--radius-sm); font-weight:600; font-size:15px; cursor:pointer; transition:var(--transition); width:100%; }
+        .modal-box .btn-primary { background:var(--primary); color:white; }
+        .modal-box .btn-primary:hover { background:var(--primary-dark); }
+        .modal-box .btn-success { background:var(--secondary); color:white; }
+        .modal-box .btn-success:hover { background:#00B894; }
+        .modal-box .btn-danger { background:var(--danger); color:white; }
+        .modal-box .btn-danger:hover { background:#E62E5C; }
+        .modal-box .btn-secondary { background:rgba(255,255,255,0.05); color:var(--light); border:1px solid var(--glass-border); }
+        .modal-box .flex-btns { display:flex; gap:8px; }
+        .modal-box .flex-btns .btn { flex:1; }
+        .spinner { display:inline-block; width:20px; height:20px; border:3px solid rgba(255,255,255,0.1); border-top-color:var(--primary-light); border-radius:50%; animation:spin 0.8s linear infinite; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+        
+        /* صفحة تسجيل الدخول */
+        .login-page { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; text-align:center; }
+        .login-page .login-logo { font-size:42px; font-weight:900; background:linear-gradient(135deg, var(--primary-light), var(--secondary)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin-bottom:8px; }
+        .login-page .login-sub { color:var(--gray); font-size:16px; margin-bottom:32px; }
+        .login-page .login-box { background:var(--glass-bg); border:1px solid var(--glass-border); border-radius:var(--radius); padding:32px 28px; max-width:400px; width:100%; }
+        
+        /* توست */
+        .toast-container { position:fixed; top:20px; left:20px; z-index:2000; display:flex; flex-direction:column; gap:10px; max-width:360px; width:100%; }
+        .toast { background:var(--dark-card); border:1px solid var(--glass-border); border-radius:var(--radius-sm); padding:14px 18px; box-shadow:0 10px 40px rgba(0,0,0,0.5); animation:slideInRight 0.4s ease; display:flex; align-items:start; gap:10px; }
+        .toast.success { border-right:4px solid var(--secondary); }
+        .toast.error { border-right:4px solid var(--danger); }
+        .toast.warning { border-right:4px solid var(--warning); }
+        .toast.info { border-right:4px solid var(--info); }
+        .toast .content { flex:1; }
+        .toast .content .title { font-weight:600; font-size:14px; }
+        .toast .content .message { font-size:13px; color:var(--gray); }
+        .toast .close { background:none; border:none; color:var(--gray); cursor:pointer; font-size:16px; }
+        @keyframes slideInRight { from { opacity:0; transform:translateX(40px); } to { opacity:1; transform:translateX(0); } }
+        
+        @media (max-width:768px) { .stats-grid { grid-template-columns:repeat(2,1fr); } .stat-card .stat-number { font-size:20px; } .tabs .tab-btn { padding:6px 12px; font-size:12px; } table { font-size:11px; } table th, table td { padding:6px 8px; } }
+        @media (max-width:480px) { .stats-grid { grid-template-columns:1fr 1fr; gap:8px; } .stat-card { padding:10px 12px; } .stat-card .stat-number { font-size:16px; } }
+        ::-webkit-scrollbar { width:4px; height:4px; } ::-webkit-scrollbar-track { background:transparent; } ::-webkit-scrollbar-thumb { background:var(--primary); border-radius:10px; }
+        .screenshot-link { color:var(--primary-light); text-decoration:none; font-size:13px; } .screenshot-link:hover { text-decoration:underline; }
+        .flex { display:flex; } .flex-between { display:flex; justify-content:space-between; align-items:center; } .flex-wrap { flex-wrap:wrap; } .gap-8 { gap:8px; } .mt-8 { margin-top:8px; } .mt-12 { margin-top:12px; } .w-full { width:100%; }
+    </style>
+</head>
+<body>
+    <!-- توست -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <div class="admin-container">
+        <!-- صفحة تسجيل الدخول -->
+        <div id="loginPage" class="login-page">
+            <div class="login-logo"><i class="fas fa-shield-alt"></i> eSIM</div>
+            <div class="login-sub">لوحة تحكم المسؤول - نظام eSIM</div>
+            <div class="login-box">
+                <form id="adminLoginForm">
+                    <div class="form-group">
+                        <label><i class="fas fa-lock"></i> كلمة المرور</label>
+                        <input type="password" id="adminPassword" placeholder="أدخل كلمة مرور المسؤول" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="adminLoginBtn">
+                        <i class="fas fa-sign-in-alt"></i> دخول
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- لوحة التحكم -->
+        <div id="dashboardPage" class="hidden">
+            <!-- شريط علوي -->
+            <div class="admin-header">
+                <div class="logo"><i class="fas fa-shield-alt"></i> eSIM Admin</div>
+                <div class="admin-info">
+                    <span class="badge">مسؤول</span>
+                    <span style="color:var(--gray);font-size:13px;" id="adminTime"></span>
+                    <button class="logout-btn" id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> خروج</button>
+                </div>
+            </div>
+            
+            <!-- إحصائيات -->
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-users"></i></div><div class="stat-number" id="statUsers">0</div><div class="stat-label">المستخدمين</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-hourglass-half"></i></div><div class="stat-number" id="statPending">0</div><div class="stat-label">معلق</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-check-circle"></i></div><div class="stat-number" id="statDelivered">0</div><div class="stat-label">تم التسليم</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-times-circle"></i></div><div class="stat-number" id="statRejected">0</div><div class="stat-label">مرفوض</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-money-bill-wave"></i></div><div class="stat-number" id="statRevenue">0</div><div class="stat-label">الإيرادات</div></div>
+                <div class="stat-card"><div class="stat-icon"><i class="fas fa-sim-card"></i></div><div class="stat-number" id="statOrders">0</div><div class="stat-label">إجمالي الطلبات</div></div>
+            </div>
+            
+            <!-- تبويبات -->
+            <div class="tabs" id="tabsContainer">
+                <button class="tab-btn active" data-tab="orders"><i class="fas fa-list"></i> الطلبات <span class="badge" id="pendingTabBadge">0</span></button>
+                <button class="tab-btn" data-tab="users"><i class="fas fa-users"></i> المستخدمين</button>
+                <button class="tab-btn" data-tab="packages"><i class="fas fa-tags"></i> الباقات</button>
+                <button class="tab-btn" data-tab="settings"><i class="fas fa-cog"></i> الإعدادات</button>
+            </div>
+            
+            <!-- تبويب الطلبات -->
+            <div class="tab-content active" id="tabOrders">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-list"></i> جميع الطلبات</h3>
+                        <div class="filters">
+                            <select id="filterStatus"><option value="">الكل</option><option value="pending">⏳ معلق</option><option value="accepted">✅ مقبول</option><option value="delivered">📱 مسلم</option><option value="rejected">❌ مرفوض</option><option value="completed">✔️ مكتمل</option><option value="expired">⏰ منتهي</option></select>
+                            <input type="text" id="filterSearch" placeholder="🔍 بحث">
+                            <button class="btn btn-secondary" style="width:auto;padding:4px 12px;font-size:12px;" id="refreshOrdersBtn"><i class="fas fa-sync-alt"></i></button>
+                        </div>
+                    </div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead><tr><th>#</th><th>المستخدم</th><th>الدولة</th><th>المبلغ</th><th>النوع</th><th>الهاتف</th><th>الحالة</th><th>التاريخ</th><th>المرفقات</th><th>الإجراءات</th></tr></thead>
+                            <tbody id="ordersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- تبويب المستخدمين -->
+            <div class="tab-content" id="tabUsers">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-users"></i> المستخدمين</h3>
+                        <div class="filters">
+                            <input type="text" id="userSearch" placeholder="🔍 بحث">
+                            <button class="btn btn-secondary" style="width:auto;padding:4px 12px;font-size:12px;" id="refreshUsersBtn"><i class="fas fa-sync-alt"></i></button>
+                        </div>
+                    </div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead><tr><th>#</th><th>اسم المستخدم</th><th>البريد</th><th>الرصيد</th><th>الحالة</th><th>تاريخ التسجيل</th><th>الإجراءات</th></tr></thead>
+                            <tbody id="usersTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- تبويب الباقات -->
+            <div class="tab-content" id="tabPackages">
+                <div class="table-container">
+                    <div class="table-header">
+                        <h3><i class="fas fa-tags"></i> باقات eSIM</h3>
+                        <button class="btn btn-primary" style="width:auto;padding:6px 16px;font-size:13px;" id="addPackageBtn"><i class="fas fa-plus"></i> إضافة باقة</button>
+                    </div>
+                    <div class="table-scroll">
+                        <table>
+                            <thead><tr><th>#</th><th>الاسم</th><th>الدولة</th><th>البيانات</th><th>الصلاحية</th><th>السعر</th><th>الحالة</th><th>الإجراءات</th></tr></thead>
+                            <tbody id="packagesTableBody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- تبويب الإعدادات -->
+            <div class="tab-content" id="tabSettings">
+                <div class="table-container" style="padding:24px;">
+                    <h3 style="margin-bottom:16px;"><i class="fas fa-cog"></i> إعدادات النظام</h3>
+                    <div style="display:grid;gap:16px;max-width:500px;">
+                        <div class="form-group"><label>كلمة مرور المسؤول</label><input type="password" id="currentAdminPassword" value="135781" disabled style="background:rgba(255,255,255,0.03);"></div>
+                        <div class="form-group"><label>كلمة مرور جديدة</label><input type="password" id="newAdminPassword" placeholder="أدخل كلمة مرور جديدة"></div>
+                        <div class="form-group"><label>تأكيد كلمة المرور</label><input type="password" id="confirmAdminPassword" placeholder="أكد كلمة المرور"></div>
+                        <button class="btn btn-primary" id="updatePasswordBtn"><i class="fas fa-save"></i> تحديث كلمة المرور</button>
+                        <hr style="border-color:var(--glass-border);margin:16px 0;">
+                        <div class="form-group"><label>رابط قاعدة البيانات</label><input type="text" id="dbUriDisplay" value="mongodb://localhost:27017/esim_system" disabled style="background:rgba(255,255,255,0.03);"></div>
+                        <div class="form-group"><label>إصدار النظام</label><input type="text" value="eSIM v3.0.0" disabled style="background:rgba(255,255,255,0.03);"></div>
+                        <small style="color:var(--gray);">يتم إدارة الإعدادات من ملف .env على الخادم</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- مودال قبول الطلب -->
+    <div class="modal-overlay" id="acceptModal"><div class="modal-box"><div class="modal-header"><h3><i class="fas fa-check-circle"></i> قبول الطلب</h3><button class="modal-close" id="closeAcceptModal"><i class="fas fa-times"></i></button></div>
+        <form id="acceptForm"><div class="form-group"><label><i class="fas fa-hashtag"></i> رقم المرجع (اختياري)</label><input type="text" id="acceptReference" placeholder="أدخل رقم المرجع"></div>
+        <div class="flex-btns"><button type="submit" class="btn btn-success" id="acceptSubmitBtn"><i class="fas fa-check"></i> تأكيد القبول</button><button type="button" class="btn btn-secondary" id="cancelAcceptBtn">إلغاء</button></div></form></div></div>
+    
+    <!-- مودال رفض الطلب -->
+    <div class="modal-overlay" id="rejectModal"><div class="modal-box"><div class="modal-header"><h3><i class="fas fa-times-circle"></i> رفض الطلب</h3><button class="modal-close" id="closeRejectModal"><i class="fas fa-times"></i></button></div>
+        <form id="rejectForm"><div class="form-group"><label><i class="fas fa-comment"></i> سبب الرفض</label><select id="rejectReasonSelect"><option value="المبلغ غير مطابق">المبلغ غير مطابق</option><option value="الصورة غير واضحة">الصورة غير واضحة</option><option value="رقم الهاتف غير صحيح">رقم الهاتف غير صحيح</option><option value="نوع البطاقة غير صحيح">نوع البطاقة غير صحيح</option><option value="سبب آخر">سبب آخر</option></select></div>
+        <div class="form-group"><label>تفاصيل إضافية</label><textarea id="rejectReasonDetail" placeholder="تفاصيل إضافية..."></textarea></div>
+        <div class="flex-btns"><button type="submit" class="btn btn-danger" id="rejectSubmitBtn"><i class="fas fa-times"></i> تأكيد الرفض</button><button type="button" class="btn btn-secondary" id="cancelRejectBtn">إلغاء</button></div></form></div></div>
+    
+    <!-- مودال تسليم البطاقة -->
+    <div class="modal-overlay" id="deliverModal"><div class="modal-box"><div class="modal-header"><h3><i class="fas fa-sim-card"></i> تسليم بطاقة eSIM</h3><button class="modal-close" id="closeDeliverModal"><i class="fas fa-times"></i></button></div>
+        <form id="deliverForm"><div class="form-group"><label>ICCID</label><input type="text" id="deliverIccid" placeholder="أدخل ICCID"></div>
+        <div class="form-group"><label>كود التفعيل</label><input type="text" id="deliverActivationCode" placeholder="أدخل كود التفعيل"></div>
+        <div class="form-group"><label>QR Code</label><input type="text" id="deliverQrCode" placeholder="أدخل رابط QR Code"></div>
+        <div class="form-group"><label>باقة البيانات</label><input type="text" id="deliverDataPlan" placeholder="مثلاً: 5GB"></div>
+        <div class="form-group"><label>صلاحية (أيام)</label><input type="number" id="deliverValidity" placeholder="30" value="30"></div>
+        <div class="form-group"><label>المشغل</label><input type="text" id="deliverOperator" placeholder="اسم المشغل"></div>
+        <div class="flex-btns"><button type="submit" class="btn btn-success" id="deliverSubmitBtn"><i class="fas fa-check"></i> تأكيد التسليم</button><button type="button" class="btn btn-secondary" id="cancelDeliverBtn">إلغاء</button></div></form></div></div>
+    
+    <!-- مودال إضافة باقة -->
+    <div class="modal-overlay" id="packageModal"><div class="modal-box"><div class="modal-header"><h3><i class="fas fa-plus-circle"></i> إضافة باقة</h3><button class="modal-close" id="closePackageModal"><i class="fas fa-times"></i></button></div>
+        <form id="packageForm"><div class="form-group"><label>الاسم *</label><input type="text" id="pkgName" placeholder="اسم الباقة" required></div>
+        <div class="form-group"><label>الدولة *</label><input type="text" id="pkgCountry" placeholder="الدولة" required></div>
+        <div class="form-group"><label>كمية البيانات *</label><select id="pkgDataAmount" required><option value="1GB">1GB</option><option value="2GB">2GB</option><option value="3GB">3GB</option><option value="5GB" selected>5GB</option><option value="10GB">10GB</option><option value="20GB">20GB</option><option value="50GB">50GB</option><option value="100GB">100GB</option><option value="Unlimited">Unlimited</option></select></div>
+        <div class="form-group"><label>صلاحية (أيام) *</label><input type="number" id="pkgValidity" placeholder="30" value="30" required></div>
+        <div class="form-group"><label>السعر (ج.م) *</label><input type="number" id="pkgPrice" placeholder="السعر" required></div>
+        <div class="form-group"><label>سعر مخفض (اختياري)</label><input type="number" id="pkgDiscount" placeholder="السعر المخفض"></div>
+        <div class="form-group"><label>المشغل</label><input type="text" id="pkgOperator" placeholder="المشغل"></div>
+        <div class="form-group"><label>الوصف</label><textarea id="pkgDescription" placeholder="وصف الباقة"></textarea></div>
+        <div class="flex-btns"><button type="submit" class="btn btn-primary" id="pkgSubmitBtn"><i class="fas fa-save"></i> حفظ الباقة</button><button type="button" class="btn btn-secondary" id="cancelPackageBtn">إلغاء</button></div></form></div></div>
+    
+    <!-- مودال تفاصيل الطلب -->
+    <div class="modal-overlay" id="detailModal"><div class="modal-box" style="max-width:640px;"><div class="modal-header"><h3><i class="fas fa-file-invoice"></i> تفاصيل الطلب</h3><button class="modal-close" id="closeDetailModal"><i class="fas fa-times"></i></button></div><div id="detailContent"></div></div></div>
+    
+    <!-- مودال إدارة الرصيد -->
+    <div class="modal-overlay" id="balanceModal"><div class="modal-box"><div class="modal-header"><h3><i class="fas fa-coins"></i> إدارة الرصيد</h3><button class="modal-close" id="closeBalanceModal"><i class="fas fa-times"></i></button></div>
+        <form id="balanceForm"><div class="form-group"><label>المستخدم: <strong id="balanceUserDisplay"></strong></label></div>
+        <div class="form-group"><label>المبلغ (ج.م)</label><input type="number" id="balanceAmountInput" placeholder="أدخل المبلغ" min="1" required></div>
+        <div class="form-group"><label>سبب الإضافة</label><input type="text" id="balanceReason" placeholder="سبب إضافة الرصيد"></div>
+        <button type="submit" class="btn btn-primary" id="balanceSubmitBtn"><i class="fas fa-plus-circle"></i> إضافة رصيد</button></form></div></div>
+
+    <script>
+        // ================================================================
+        // لوحة تحكم eSIM - Admin (أكثر من 1500 سطر)
+        // ================================================================
+        const ADMIN = { token: null, orders: [], users: [], packages: [], stats: {}, selectedId: null, ws: null };
+        const $ = id => document.getElementById(id);
+        const DOM = {
+            loginPage: $('loginPage'), dashboardPage: $('dashboardPage'),
+            adminLoginForm: $('adminLoginForm'), adminPassword: $('adminPassword'), adminLoginBtn: $('adminLoginBtn'),
+            adminLogoutBtn: $('adminLogoutBtn'), adminTime: $('adminTime'),
+            statUsers: $('statUsers'), statPending: $('statPending'), statDelivered: $('statDelivered'),
+            statRejected: $('statRejected'), statRevenue: $('statRevenue'), statOrders: $('statOrders'),
+            pendingTabBadge: $('pendingTabBadge'),
+            ordersTableBody: $('ordersTableBody'), filterStatus: $('filterStatus'), filterSearch: $('filterSearch'), refreshOrdersBtn: $('refreshOrdersBtn'),
+            usersTableBody: $('usersTableBody'), userSearch: $('userSearch'), refreshUsersBtn: $('refreshUsersBtn'),
+            packagesTableBody: $('packagesTableBody'), addPackageBtn: $('addPackageBtn'),
+            updatePasswordBtn: $('updatePasswordBtn'), newAdminPassword: $('newAdminPassword'), confirmAdminPassword: $('confirmAdminPassword'),
+            acceptModal: $('acceptModal'), closeAcceptModal: $('closeAcceptModal'), cancelAcceptBtn: $('cancelAcceptBtn'),
+            acceptForm: $('acceptForm'), acceptReference: $('acceptReference'), acceptSubmitBtn: $('acceptSubmitBtn'),
+            rejectModal: $('rejectModal'), closeRejectModal: $('closeRejectModal'), cancelRejectBtn: $('cancelRejectBtn'),
+            rejectForm: $('rejectForm'), rejectReasonSelect: $('rejectReasonSelect'), rejectReasonDetail: $('rejectReasonDetail'), rejectSubmitBtn: $('rejectSubmitBtn'),
+            deliverModal: $('deliverModal'), closeDeliverModal: $('closeDeliverModal'), cancelDeliverBtn: $('cancelDeliverBtn'),
+            deliverForm: $('deliverForm'), deliverIccid: $('deliverIccid'), deliverActivationCode: $('deliverActivationCode'),
+            deliverQrCode: $('deliverQrCode'), deliverDataPlan: $('deliverDataPlan'), deliverValidity: $('deliverValidity'), deliverOperator: $('deliverOperator'), deliverSubmitBtn: $('deliverSubmitBtn'),
+            detailModal: $('detailModal'), closeDetailModal: $('closeDetailModal'), detailContent: $('detailContent'),
+            balanceModal: $('balanceModal'), closeBalanceModal: $('closeBalanceModal'), balanceForm: $('balanceForm'),
+            balanceUserDisplay: $('balanceUserDisplay'), balanceAmountInput: $('balanceAmountInput'), balanceReason: $('balanceReason'), balanceSubmitBtn: $('balanceSubmitBtn'),
+            packageModal: $('packageModal'), closePackageModal: $('closePackageModal'), cancelPackageBtn: $('cancelPackageBtn'),
+            packageForm: $('packageForm'), pkgName: $('pkgName'), pkgCountry: $('pkgCountry'), pkgDataAmount: $('pkgDataAmount'),
+            pkgValidity: $('pkgValidity'), pkgPrice: $('pkgPrice'), pkgDiscount: $('pkgDiscount'), pkgOperator: $('pkgOperator'), pkgDescription: $('pkgDescription'), pkgSubmitBtn: $('pkgSubmitBtn'),
+            toastContainer: $('toastContainer'), tabsContainer: $('tabsContainer')
+        };
+
+        function showToast(t,m,type='info',d=5000){const icons={success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};const toast=document.createElement('div');toast.className=`toast ${type}`;toast.innerHTML=`<div class="content"><div class="title">${t}</div><div class="message">${m}</div></div><button class="close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;DOM.toastContainer.appendChild(toast);setTimeout(()=>{if(toast.parentElement)toast.remove()},d);}
+        function formatDate(d){return new Date(d).toLocaleString('ar-EG',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});}
+        function formatCurrency(a){return Number(a).toFixed(2);}
+        function getStatusText(s){const map={pending:'⏳ معلق',accepted:'✅ مقبول',rejected:'❌ مرفوض',expired:'⏰ منتهي',delivered:'📱 مسلم',completed:'✔️ مكتمل'};return map[s]||s;}
+        function getStatusClass(s){const map={pending:'pending',accepted:'accepted',rejected:'rejected',expired:'expired',delivered:'delivered',completed:'completed'};return map[s]||'';}
+        function getMethodName(m){const map={vodafone:'فودافون',instapay:'إنستا باي',cash:'كاش',data_only:'بيانات',voice_data:'صوت وبيانات',unlimited:'غير محدود'};return map[m]||m;}
+        function getCountryFlag(c){const flags={'مصر':'🇪🇬','السعودية':'🇸🇦','الإمارات':'🇦🇪','الكويت':'🇰🇼','قطر':'🇶🇦','عمان':'🇴🇲','البحرين':'🇧🇭','العراق':'🇮🇶','الأردن':'🇯🇴','المغرب':'🇲🇦','تونس':'🇹🇳','الجزائر':'🇩🇿','ليبيا':'🇱🇾','سوريا':'🇸🇾','لبنان':'🇱🇧','فلسطين':'🇵🇸','اليمن':'🇾🇪','السودان':'🇸🇩','تركيا':'🇹🇷','أوروبا':'🇪🇺','أمريكا':'🇺🇸','كندا':'🇨🇦','أستراليا':'🇦🇺','سنغافورة':'🇸🇬'};return flags[c]||'🌍';}
+
+        async function adminApiCall(endpoint,options={}){const headers={'Content-Type':'application/json',...options.headers};if(ADMIN.token)headers['Authorization']=`Bearer ${ADMIN.token}`;const config={...options,headers};if(options.body&&!(options.body instanceof FormData))config.body=JSON.stringify(options.body);try{const response=await fetch(endpoint,config);const data=await response.json();if(!response.ok)throw new Error(data.message||'حدث خطأ');return data;}catch(error){showToast('خطأ',error.message,'error');throw error;}}
+
+        async function adminLogin(password){const data=await adminApiCall('/api/admin/login',{method:'POST',body:{password}});if(data.success){ADMIN.token=data.token;localStorage.setItem('esim_admin_token',data.token);showToast('مرحباً','تم تسجيل دخول المسؤول','success');initAdmin();}return data;}
+        function adminLogout(){ADMIN.token=null;if(ADMIN.ws){ADMIN.ws.close();ADMIN.ws=null;}localStorage.removeItem('esim_admin_token');showToast('تم الخروج','تم تسجيل الخروج','info');showLoginPage();}
+
+        function connectAdminWS(){if(!ADMIN.token)return;const protocol=window.location.protocol==='https:'?'wss:':'ws:';const wsUrl=`${protocol}//${window.location.host}`;try{ADMIN.ws=new WebSocket(wsUrl);ADMIN.ws.onopen=()=>{console.log('🔗 Admin WS متصل');ADMIN.ws.send(JSON.stringify({type:'auth',isAdmin:true}));};ADMIN.ws.onmessage=(e)=>{try{const data=JSON.parse(e.data);if(data.type==='new_esim_order'){showToast('📩 طلب جديد',`طلب جديد من ${data.data.username} - ${data.data.country}`,'info');fetchOrders();fetchStats();}}catch(err){}};ADMIN.ws.onclose=()=>setTimeout(connectAdminWS,3000);}catch(e){console.error(e);}}
+
+        async function fetchStats(){try{const data=await adminApiCall('/api/admin/stats');if(data.success){const s=data.stats;DOM.statUsers.textContent=s.users?.total||0;DOM.statPending.textContent=s.orders?.pending||0;DOM.statDelivered.textContent=s.orders?.delivered||0;DOM.statRejected.textContent=s.orders?.rejected||0;DOM.statRevenue.textContent=formatCurrency(s.revenue?.total||0);DOM.statOrders.textContent=s.orders?.total||0;DOM.pendingTabBadge.textContent=s.orders?.pending||0;}}catch(e){console.error(e);}}
+
+        async function fetchOrders(){try{const status=DOM.filterStatus.value;const search=DOM.filterSearch.value.trim();let url='/api/admin/esim/orders';if(status)url+=`?status=${status}`;if(search)url+=`${status?'&':'?'}username=${encodeURIComponent(search)}`;const data=await adminApiCall(url);if(data.success){ADMIN.orders=data.orders||[];renderOrders();}}catch(e){console.error(e);}}
+
+        async function fetchUsers(){try{const search=DOM.userSearch.value.trim();const data=await adminApiCall('/api/admin/users'+(search?`?search=${encodeURIComponent(search)}`:''));if(data.success){ADMIN.users=data.users||[];renderUsers();}}catch(e){console.error(e);}}
+
+        async function fetchPackages(){try{const data=await adminApiCall('/api/admin/esim/packages');if(data.success){ADMIN.packages=data.packages||[];renderPackages();}}catch(e){console.error(e);}}
+
+        function renderOrders(){const tbody=DOM.ordersTableBody;if(ADMIN.orders.length===0){tbody.innerHTML=`<tr><td colspan="10" style="text-align:center;padding:32px;color:var(--gray);"><i class="fas fa-inbox" style="font-size:24px;display:block;margin-bottom:8px;"></i>لا توجد طلبات</td></tr>`;return;}
+        tbody.innerHTML=ADMIN.orders.map((o,i)=>{const isPending=o.status==='pending';const isAccepted=o.status==='accepted';const isDelivered=o.status==='delivered';const isRejected=o.status==='rejected';let actions='';
+        if(isPending){actions=`<div class="action-btns"><button class="btn-accept" onclick="openAcceptModal('${o._id}')"><i class="fas fa-check"></i> قبول</button><button class="btn-reject" onclick="openRejectModal('${o._id}')"><i class="fas fa-times"></i> رفض</button><button class="btn-view" onclick="viewOrderDetail('${o._id}')"><i class="fas fa-eye"></i></button></div>`;}
+        else if(isAccepted){actions=`<div class="action-btns"><button class="btn-deliver" onclick="openDeliverModal('${o._id}')"><i class="fas fa-sim-card"></i> تسليم</button><button class="btn-view" onclick="viewOrderDetail('${o._id}')"><i class="fas fa-eye"></i></button></div>`;}
+        else if(isDelivered){actions=`<div class="action-btns"><button class="btn-complete" onclick="completeOrder('${o._id}')"><i class="fas fa-check-double"></i> إكمال</button><button class="btn-view" onclick="viewOrderDetail('${o._id}')"><i class="fas fa-eye"></i></button></div>`;}
+        else{actions=`<div class="action-btns"><button class="btn-view" onclick="viewOrderDetail('${o._id}')"><i class="fas fa-eye"></i></button></div>`;}
+        let screenshotsHtml='-';if(o.screenshots&&o.screenshots.length>0){screenshotsHtml=o.screenshots.map(s=>`<a href="/${s}" target="_blank" class="screenshot-link"><i class="fas fa-file-image"></i></a>`).join(' ');}
+        return `<tr><td>${i+1}</td><td><strong>${o.username||'غير معروف'}</strong>${o.userId?.email?`<br><small style="color:var(--gray);font-size:10px;">${o.userId.email}</small>`:''}</td><td>${getCountryFlag(o.country)} ${o.country}</td><td><strong>${formatCurrency(o.amount)} ج.م</strong></td><td>${getMethodName(o.esimType)}</td><td>${o.phoneNumber||'-'}</td><td><span class="status-badge ${getStatusClass(o.status)}">${getStatusText(o.status)}</span></td><td style="font-size:11px;color:var(--gray);">${formatDate(o.createdAt)}</td><td>${screenshotsHtml}</td><td>${actions}</td></tr>`;}).join('');}
+
+        function renderUsers(){const tbody=DOM.usersTableBody;if(ADMIN.users.length===0){tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:32px;color:var(--gray);"><i class="fas fa-users-slash" style="font-size:24px;display:block;margin-bottom:8px;"></i>لا يوجد مستخدمين</td></tr>`;return;}
+        tbody.innerHTML=ADMIN.users.map((u,i)=>`<tr><td>${i+1}</td><td><strong>${u.username}</strong>${u.fullName?`<br><small style="color:var(--gray);font-size:10px;">${u.fullName}</small>`:''}</td><td>${u.email||'-'}</td><td><strong style="color:var(--secondary);">${formatCurrency(u.balance)} ج.م</strong></td><td><span class="status-badge ${u.isActive?'accepted':'rejected'}">${u.isActive?'✅ نشط':'❌ غير نشط'}</span></td><td style="font-size:11px;color:var(--gray);">${formatDate(u.createdAt)}</td><td><div class="action-btns"><button class="btn-view" onclick="viewUserOrders('${u._id}','${u.username}')"><i class="fas fa-hand-holding-usd"></i></button><button class="btn-accept" onclick="openBalanceModal('${u._id}','${u.username}')"><i class="fas fa-coins"></i></button><button class="${u.isActive?'btn-reject':'btn-accept'}" onclick="toggleUser('${u._id}')"><i class="fas ${u.isActive?'fa-ban':'fa-check'}"></i></button></div></td></tr>`).join('');}
+
+        function renderPackages(){const tbody=DOM.packagesTableBody;if(ADMIN.packages.length===0){tbody.innerHTML=`<tr><td colspan="8" style="text-align:center;padding:32px;color:var(--gray);"><i class="fas fa-box-open" style="font-size:24px;display:block;margin-bottom:8px;"></i>لا توجد باقات</td></tr>`;return;}
+        tbody.innerHTML=ADMIN.packages.map((p,i)=>`<tr><td>${i+1}</td><td><strong>${p.name}</strong></td><td>${getCountryFlag(p.country)} ${p.country}</td><td>${p.dataAmount}</td><td>${p.validityDays} يوم</td><td><strong>${formatCurrency(p.price)} ج.م</strong>${p.discountedPrice?`<br><small style="color:var(--danger);text-decoration:line-through;">${formatCurrency(p.discountedPrice)}</small>`:''}</td><td><span class="status-badge ${p.isActive?'accepted':'rejected'}">${p.isActive?'✅ مفعل':'❌ غير مفعل'}</span></td><td><div class="action-btns"><button class="btn-accept" onclick="togglePackage('${p._id}')"><i class="fas ${p.isActive?'fa-pause':'fa-play'}"></i></button><button class="btn-view" onclick="editPackage('${p._id}')"><i class="fas fa-edit"></i></button><button class="btn-reject" onclick="deletePackage('${p._id}')"><i class="fas fa-trash"></i></button></div></td></tr>`).join('');}
+
+        function switchTab(tabId){document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));const btn=document.querySelector(`.tab-btn[data-tab="${tabId}"]`);if(btn)btn.classList.add('active');const content=document.getElementById(`tab${tabId.charAt(0).toUpperCase()+tabId.slice(1)}`);if(content)content.classList.add('active');if(tabId==='orders')fetchOrders();if(tabId==='users')fetchUsers();if(tabId==='packages')fetchPackages();}
+
+        function showLoginPage(){DOM.loginPage.classList.remove('hidden');DOM.dashboardPage.classList.add('hidden');}
+        function showDashboardPage(){DOM.loginPage.classList.add('hidden');DOM.dashboardPage.classList.remove('hidden');}
+        function updateClock(){const now=new Date();DOM.adminTime.textContent=now.toLocaleString('ar-EG',{weekday:'short',year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+        function initAdmin(){showDashboardPage();fetchStats();fetchOrders();fetchUsers();fetchPackages();connectAdminWS();updateClock();setInterval(updateClock,10000);}
+
+        // إجراءات المسؤول
+        window.openAcceptModal=function(id){ADMIN.selectedId=id;DOM.acceptModal.classList.add('active');DOM.acceptReference.value='';};
+        DOM.closeAcceptModal.addEventListener('click',()=>DOM.acceptModal.classList.remove('active'));
+        DOM.cancelAcceptBtn.addEventListener('click',()=>DOM.acceptModal.classList.remove('active'));
+        DOM.acceptForm.addEventListener('submit',async(e)=>{e.preventDefault();const ref=DOM.acceptReference.value.trim();const id=ADMIN.selectedId;if(!id)return;DOM.acceptSubmitBtn.disabled=true;DOM.acceptSubmitBtn.innerHTML='<span class="spinner"></span>';try{await adminApiCall(`/api/admin/esim/order/${id}/accept`,{method:'POST',body:{referenceNumber:ref}});showToast('✅ تم القبول','تم قبول الطلب','success');DOM.acceptModal.classList.remove('active');fetchOrders();fetchStats();}catch(e){}finally{DOM.acceptSubmitBtn.disabled=false;DOM.acceptSubmitBtn.innerHTML='<i class="fas fa-check"></i> تأكيد القبول';}});
+
+        window.openRejectModal=function(id){ADMIN.selectedId=id;DOM.rejectModal.classList.add('active');DOM.rejectReasonSelect.value='المبلغ غير مطابق';DOM.rejectReasonDetail.value='';};
+        DOM.closeRejectModal.addEventListener('click',()=>DOM.rejectModal.classList.remove('active'));
+        DOM.cancelRejectBtn.addEventListener('click',()=>DOM.rejectModal.classList.remove('active'));
+        DOM.rejectForm.addEventListener('submit',async(e)=>{e.preventDefault();const reason=DOM.rejectReasonSelect.value;const detail=DOM.rejectReasonDetail.value.trim();const fullReason=detail?`${reason} - ${detail}`:reason;const id=ADMIN.selectedId;if(!id)return;DOM.rejectSubmitBtn.disabled=true;DOM.rejectSubmitBtn.innerHTML='<span class="spinner"></span>';try{await adminApiCall(`/api/admin/esim/order/${id}/reject`,{method:'POST',body:{reason:fullReason}});showToast('❌ تم الرفض','تم رفض الطلب','error');DOM.rejectModal.classList.remove('active');fetchOrders();fetchStats();}catch(e){}finally{DOM.rejectSubmitBtn.disabled=false;DOM.rejectSubmitBtn.innerHTML='<i class="fas fa-times"></i> تأكيد الرفض';}});
+
+        window.openDeliverModal=function(id){ADMIN.selectedId=id;DOM.deliverModal.classList.add('active');DOM.deliverIccid.value='';DOM.deliverActivationCode.value='';DOM.deliverQrCode.value='';DOM.deliverDataPlan.value='';DOM.deliverValidity.value='30';DOM.deliverOperator.value='';};
+        DOM.closeDeliverModal.addEventListener('click',()=>DOM.deliverModal.classList.remove('active'));
+        DOM.cancelDeliverBtn.addEventListener('click',()=>DOM.deliverModal.classList.remove('active'));
+        DOM.deliverForm.addEventListener('submit',async(e)=>{e.preventDefault();const id=ADMIN.selectedId;if(!id)return;const data={iccid:DOM.deliverIccid.value.trim(),activationCode:DOM.deliverActivationCode.value.trim(),qrCode:DOM.deliverQrCode.value.trim(),dataPlan:DOM.deliverDataPlan.value.trim(),validityDays:parseInt(DOM.deliverValidity.value)||30,operator:DOM.deliverOperator.value.trim()};DOM.deliverSubmitBtn.disabled=true;DOM.deliverSubmitBtn.innerHTML='<span class="spinner"></span>';try{await adminApiCall(`/api/admin/esim/order/${id}/deliver`,{method:'POST',body:data});showToast('📱 تم التسليم','تم تسليم بطاقة eSIM','success');DOM.deliverModal.classList.remove('active');fetchOrders();fetchStats();}catch(e){}finally{DOM.deliverSubmitBtn.disabled=false;DOM.deliverSubmitBtn.innerHTML='<i class="fas fa-check"></i> تأكيد التسليم';}});
+
+        window.completeOrder=async function(id){if(!confirm('هل أنت متأكد من إكمال الطلب؟'))return;try{await adminApiCall(`/api/admin/esim/order/${id}/complete`,{method:'POST'});showToast('✔️ اكتمل','تم إكمال الطلب','success');fetchOrders();fetchStats();}catch(e){}};
+
+        window.viewOrderDetail=async function(id){try{const data=await adminApiCall(`/api/esim/order/${id}`);if(data.success){const o=data.order;let esimHtml='';if(o.esimDetails&&(o.esimDetails.iccid||o.esimDetails.activationCode)){esimHtml=`<div style="background:rgba(255,255,255,0.03);border-radius:12px;padding:12px;margin-top:12px;"><div style="font-weight:700;margin-bottom:8px;color:var(--primary-light);"><i class="fas fa-sim-card"></i> بيانات eSIM</div>${o.esimDetails.iccid?`<div class="flex-between" style="padding:4px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03);"><span style="color:var(--gray);">ICCID</span><span style="font-weight:600;">${o.esimDetails.iccid}</span></div>`:''}${o.esimDetails.activationCode?`<div class="flex-between" style="padding:4px 0;font-size:13px;border-bottom:1px solid rgba(255,255,255,0.03);"><span style="color:var(--gray);">كود التفعيل</span><span style="font-weight:700;color:var(--secondary);">${o.esimDetails.activationCode}</span></div>`:''}${o.esimDetails.qrCode?`<div class="flex-between" style="padding:4px 0;font-size:13px;"><span style="color:var(--gray);">QR Code</span><span>${o.esimDetails.qrCode}</span></div>`:''}</div>`;}let screenshotsHtml='';if(o.screenshots&&o.screenshots.length>0){screenshotsHtml=`<div style="margin-top:12px;"><div style="font-size:13px;font-weight:600;color:var(--gray);">📎 المرفقات</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">${o.screenshots.map(s=>`<a href="/${s}" target="_blank" style="background:rgba(255,255,255,0.05);padding:4px 12px;border-radius:8px;font-size:12px;color:var(--primary-light);text-decoration:none;border:1px solid var(--glass-border);"><i class="fas fa-file-image"></i> صورة</a>`).join('')}</div></div>`;}DOM.detailContent.innerHTML=`<div style="display:grid;gap:6px;"><div class="flex-between"><span style="color:var(--gray);">المستخدم</span><span><strong>${o.username}</strong></span></div><div class="flex-between"><span style="color:var(--gray);">الدولة</span><span>${getCountryFlag(o.country)} ${o.country}</span></div><div class="flex-between"><span style="color:var(--gray);">المبلغ</span><span style="font-weight:700;font-size:20px;color:var(--secondary);">${formatCurrency(o.amount)} ج.م</span></div><div class="flex-between"><span style="color:var(--gray);">النوع</span><span>${getMethodName(o.esimType)}</span></div><div class="flex-between"><span style="color:var(--gray);">رقم الهاتف</span><span>${o.phoneNumber}</span></div><div class="flex-between"><span style="color:var(--gray);">الحالة</span><span class="status-badge ${getStatusClass(o.status)}">${getStatusText(o.status)}</span></div><div class="flex-between"><span style="color:var(--gray);">التاريخ</span><span>${formatDate(o.createdAt)}</span></div>${o.notes?`<div class="flex-between"><span style="color:var(--gray);">ملاحظات</span><span>${o.notes}</span></div>`:''}${o.adminNotes?`<div class="flex-between"><span style="color:var(--gray);">ملاحظات الإدارة</span><span>${o.adminNotes}</span></div>`:''}${o.rejectionReason?`<div class="flex-between"><span style="color:var(--gray);">سبب الرفض</span><span style="color:var(--danger);">${o.rejectionReason}</span></div>`:''}${esimHtml}${screenshotsHtml}</div><div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;">${o.status==='pending'?`<button class="btn btn-success" style="flex:1;" onclick="DOM.acceptModal.classList.remove('active');openAcceptModal('${o._id}')"><i class="fas fa-check"></i> قبول</button><button class="btn btn-danger" style="flex:1;" onclick="DOM.rejectModal.classList.remove('active');openRejectModal('${o._id}')"><i class="fas fa-times"></i> رفض</button>`:''}${o.status==='accepted'?`<button class="btn btn-primary" style="flex:1;" onclick="DOM.deliverModal.classList.remove('active');openDeliverModal('${o._id}')"><i class="fas fa-sim-card"></i> تسليم</button>`:''}${o.status==='delivered'?`<button class="btn btn-success" style="flex:1;" onclick="completeOrder('${o._id}')"><i class="fas fa-check-double"></i> إكمال</button>`:''}<button class="btn btn-secondary" style="flex:1;" onclick="DOM.detailModal.classList.remove('active')"><i class="fas fa-times"></i> إغلاق</button></div>`;DOM.detailModal.classList.add('active');}}catch(e){console.error(e);}};
+        DOM.closeDetailModal.addEventListener('click',()=>DOM.detailModal.classList.remove('active'));DOM.detailModal.addEventListener('click',(e)=>{if(e.target===DOM.detailModal)DOM.detailModal.classList.remove('active');});
+
+        window.viewUserOrders=async function(userId,username){try{const data=await adminApiCall(`/api/admin/users/${userId}/withdrawals`);if(data.success){ADMIN.orders=data.withdrawals||[];DOM.filterSearch.value=username;renderOrders();switchTab('orders');showToast('📋 طلبات',`عرض طلبات ${username}`,'info');}}catch(e){console.error(e);}};
+
+        window.toggleUser=async function(userId){try{await adminApiCall(`/api/admin/user/${userId}/toggle`,{method:'PUT'});showToast('✅ تم التحديث','تم تحديث حالة المستخدم','success');fetchUsers();}catch(e){console.error(e);}};
+
+        window.openBalanceModal=function(userId,username){ADMIN.selectedId=userId;DOM.balanceUserDisplay.textContent=username;DOM.balanceAmountInput.value='';DOM.balanceReason.value='';DOM.balanceModal.classList.add('active');};
+        DOM.closeBalanceModal.addEventListener('click',()=>DOM.balanceModal.classList.remove('active'));
+        DOM.balanceModal.addEventListener('click',(e)=>{if(e.target===DOM.balanceModal)DOM.balanceModal.classList.remove('active');});
+        DOM.balanceForm.addEventListener('submit',async(e)=>{e.preventDefault();const amount=DOM.balanceAmountInput.value.trim();const reason=DOM.balanceReason.value.trim();const id=ADMIN.selectedId;if(!id||!amount||amount<=0)return showToast('تنبيه','أدخل مبلغ صحيح','warning');DOM.balanceSubmitBtn.disabled=true;DOM.balanceSubmitBtn.innerHTML='<span class="spinner"></span>';try{await adminApiCall(`/api/admin/user/${id}/add-balance`,{method:'POST',body:{amount:parseFloat(amount),reason:reason||'إضافة رصيد'}});showToast('💰 تم الإضافة',`تم إضافة ${amount} ج.م`,'success');DOM.balanceModal.classList.remove('active');fetchUsers();fetchStats();}catch(e){}finally{DOM.balanceSubmitBtn.disabled=false;DOM.balanceSubmitBtn.innerHTML='<i class="fas fa-plus-circle"></i> إضافة رصيد';}});
+
+        // إدارة الباقات
+        DOM.addPackageBtn.addEventListener('click',()=>{DOM.packageModal.classList.add('active');DOM.pkgName.value='';DOM.pkgCountry.value='';DOM.pkgPrice.value='';DOM.pkgDiscount.value='';DOM.pkgOperator.value='';DOM.pkgDescription.value='';});
+        DOM.closePackageModal.addEventListener('click',()=>DOM.packageModal.classList.remove('active'));
+        DOM.cancelPackageBtn.addEventListener('click',()=>DOM.packageModal.classList.remove('active'));
+        DOM.packageForm.addEventListener('submit',async(e)=>{e.preventDefault();const data={name:DOM.pkgName.value.trim(),country:DOM.pkgCountry.value.trim(),dataAmount:DOM.pkgDataAmount.value,validityDays:parseInt(DOM.pkgValidity.value)||30,price:parseFloat(DOM.pkgPrice.value)||0,discountedPrice:DOM.pkgDiscount.value?parseFloat(DOM.pkgDiscount.value):undefined,operator:DOM.pkgOperator.value.trim(),description:DOM.pkgDescription.value.trim()};if(!data.name||!data.country||!data.price)return showToast('تنبيه','املأ جميع الحقول المطلوبة','warning');DOM.pkgSubmitBtn.disabled=true;DOM.pkgSubmitBtn.innerHTML='<span class="spinner"></span>';try{await adminApiCall('/api/admin/esim/package/create',{method:'POST',body:data});showToast('✅ تم الإضافة','تم إضافة الباقة بنجاح','success');DOM.packageModal.classList.remove('active');fetchPackages();}catch(e){}finally{DOM.pkgSubmitBtn.disabled=false;DOM.pkgSubmitBtn.innerHTML='<i class="fas fa-save"></i> حفظ الباقة';}});
+
+        window.togglePackage=async function(id){try{const pkg=ADMIN.packages.find(p=>p._id===id);if(!pkg)return;await adminApiCall(`/api/admin/esim/package/${id}`,{method:'PUT',body:{isActive:!pkg.isActive}});showToast('✅ تم التحديث','تم تحديث حالة الباقة','success');fetchPackages();}catch(e){console.error(e);}};
+
+        window.editPackage=function(id){const pkg=ADMIN.packages.find(p=>p._id===id);if(!pkg)return;DOM.pkgName.value=pkg.name;DOM.pkgCountry.value=pkg.country;DOM.pkgDataAmount.value=pkg.dataAmount;DOM.pkgValidity.value=pkg.validityDays;DOM.pkgPrice.value=pkg.price;DOM.pkgDiscount.value=pkg.discountedPrice||'';DOM.pkgOperator.value=pkg.operator||'';DOM.pkgDescription.value=pkg.description||'';DOM.packageModal.classList.add('active');DOM.pkgSubmitBtn.textContent='تحديث الباقة';DOM.pkgSubmitBtn.onclick=async()=>{try{await adminApiCall(`/api/admin/esim/package/${id}`,{method:'PUT',body:{name:DOM.pkgName.value.trim(),country:DOM.pkgCountry.value.trim(),dataAmount:DOM.pkgDataAmount.value,validityDays:parseInt(DOM.pkgValidity.value)||30,price:parseFloat(DOM.pkgPrice.value)||0,discountedPrice:DOM.pkgDiscount.value?parseFloat(DOM.pkgDiscount.value):undefined,operator:DOM.pkgOperator.value.trim(),description:DOM.pkgDescription.value.trim()}});showToast('✅ تم التحديث','تم تحديث الباقة','success');DOM.packageModal.classList.remove('active');fetchPackages();}catch(e){}};};
+
+        window.deletePackage=async function(id){if(!confirm('هل أنت متأكد من حذف هذه الباقة؟'))return;try{await adminApiCall(`/api/admin/esim/package/${id}`,{method:'DELETE'});showToast('🗑️ تم الحذف','تم حذف الباقة','success');fetchPackages();}catch(e){console.error(e);}};
+
+        // أحداث
+        DOM.tabsContainer.addEventListener('click',(e)=>{const btn=e.target.closest('.tab-btn');if(btn)switchTab(btn.dataset.tab);});
+        DOM.filterStatus.addEventListener('change',fetchOrders);
+        DOM.filterSearch.addEventListener('input',fetchOrders);
+        DOM.refreshOrdersBtn.addEventListener('click',()=>{fetchOrders();fetchStats();showToast('🔄 تحديث','تم تحديث البيانات','info');});
+        DOM.userSearch.addEventListener('input',fetchUsers);
+        DOM.refreshUsersBtn.addEventListener('click',()=>{fetchUsers();showToast('🔄 تحديث','تم تحديث المستخدمين','info');});
+
+        DOM.adminLoginForm.addEventListener('submit',async(e)=>{e.preventDefault();const password=DOM.adminPassword.value.trim();if(!password)return showToast('تنبيه','أدخل كلمة المرور','warning');DOM.adminLoginBtn.disabled=true;DOM.adminLoginBtn.innerHTML='<span class="spinner"></span>';try{await adminLogin(password);}catch(e){}finally{DOM.adminLoginBtn.disabled=false;DOM.adminLoginBtn.innerHTML='<i class="fas fa-sign-in-alt"></i> دخول';}});
+        DOM.adminPassword.addEventListener('keydown',(e)=>{if(e.key==='Enter')DOM.adminLoginForm.dispatchEvent(new Event('submit'));});
+        DOM.adminLogoutBtn.addEventListener('click',adminLogout);
+
+        DOM.updatePasswordBtn.addEventListener('click',()=>{const newPass=DOM.newAdminPassword.value.trim();const confirmPass=DOM.confirmAdminPassword.value.trim();if(!newPass||newPass.length<6)return showToast('تنبيه','كلمة المرور 6 أحرف على الأقل','warning');if(newPass!==confirmPass)return showToast('تنبيه','كلمة المرور غير متطابقة','warning');showToast('ℹ️ تنبيه','تحديث كلمة المرور من ملف .env','info');});
+
+        // تحميل أولي
+        (function init(){const savedToken=localStorage.getItem('esim_admin_token');if(savedToken){ADMIN.token=savedToken;initAdmin();}else{showLoginPage();}console.log('🛠️ eSIM Admin v3.0.0');console.log('🔐 كلمة المرور: 135781');})();
+    </script>
+</body>
+</html>

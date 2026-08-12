@@ -1,0 +1,3486 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="eSIM - نظام إدارة بطاقات eSIM الرقمية">
+    <meta name="keywords" content="eSIM, بطاقات, رقمية, اتصالات">
+    <meta name="author" content="eSIM Team">
+    <title>eSIM - طلب بطاقات eSIM</title>
+    
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ================================================================
+           أنماط eSIM - نظام متكامل
+           ================================================================ */
+        
+        /* ================================================================
+           المتغيرات الأساسية
+           ================================================================ */
+        :root {
+            --primary: #6C3CE1;
+            --primary-dark: #5B2FC7;
+            --primary-light: #8B6CF2;
+            --primary-gradient: linear-gradient(135deg, #6C3CE1, #8B6CF2);
+            --secondary: #00D4AA;
+            --secondary-dark: #00B894;
+            --secondary-gradient: linear-gradient(135deg, #00D4AA, #00B894);
+            --danger: #FF3D71;
+            --danger-dark: #E62E5C;
+            --warning: #FFB800;
+            --warning-dark: #F5A623;
+            --info: #2D9CDB;
+            --info-dark: #1E7AB3;
+            --dark: #0F0F1A;
+            --dark-card: #16213E;
+            --dark-bg: #0A0A15;
+            --dark-light: #1A1A2E;
+            --gray: #8A8FA3;
+            --gray-light: #B0B5C9;
+            --gray-dark: #6B7083;
+            --light: #E8EAF6;
+            --white: #FFFFFF;
+            --shadow: 0 8px 32px rgba(108, 60, 225, 0.3);
+            --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.4);
+            --shadow-hover: 0 8px 40px rgba(108, 60, 225, 0.4);
+            --radius: 24px;
+            --radius-lg: 20px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --radius-xs: 8px;
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --glass-hover: rgba(255, 255, 255, 0.1);
+            --blur: blur(20px);
+            --backdrop: backdrop-filter(20px);
+            --esim-gradient: linear-gradient(135deg, #6C3CE1, #00D4AA);
+            --font-family: 'Tajawal', sans-serif;
+        }
+        
+        /* ================================================================
+           إعادة تعيين الأنماط
+           ================================================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: var(--font-family);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        body {
+            background: var(--dark-bg);
+            color: var(--light);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+            background-image: 
+                radial-gradient(ellipse at 10% 20%, rgba(108, 60, 225, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 90% 80%, rgba(0, 212, 170, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(108, 60, 225, 0.03) 0%, transparent 70%);
+            background-attachment: fixed;
+        }
+        
+        /* ================================================================
+           حاوية التطبيق الرئيسية
+           ================================================================ */
+        .app-container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--glass-bg);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 20px;
+            box-shadow: var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+            min-height: 700px;
+            max-height: 100vh;
+            overflow-y: auto;
+        }
+        
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(108, 60, 225, 0.05) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        
+        /* ================================================================
+           شريط التمرير المخصص
+           ================================================================ */
+        .app-container::-webkit-scrollbar {
+            width: 4px;
+        }
+        
+        .app-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .app-container::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        /* ================================================================
+           شريط الحالة العلوي
+           ================================================================ */
+        .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 0 16px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            z-index: 10;
+        }
+        
+        .status-bar .logo {
+            font-size: 22px;
+            font-weight: 900;
+            background: var(--esim-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .status-bar .logo i {
+            -webkit-text-fill-color: var(--primary-light);
+            font-size: 24px;
+        }
+        
+        .status-bar .logo .esim-tag {
+            font-size: 9px;
+            background: var(--primary);
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            -webkit-text-fill-color: white;
+            font-weight: 700;
+        }
+        
+        .status-bar .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .status-bar .user-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+            color: white;
+            cursor: pointer;
+            transition: var(--transition);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 15px rgba(108, 60, 225, 0.3);
+            position: relative;
+        }
+        
+        .status-bar .user-avatar:hover {
+            transform: scale(1.05);
+            border-color: var(--primary-light);
+            box-shadow: 0 4px 25px rgba(108, 60, 225, 0.4);
+        }
+        
+        .status-bar .user-avatar .online-dot {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            background: var(--secondary);
+            border-radius: 50%;
+            border: 2px solid var(--dark-card);
+        }
+        
+        .status-bar .user-name {
+            font-weight: 600;
+            font-size: 14px;
+            color: var(--light);
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        
+        .status-bar .user-role {
+            font-size: 10px;
+            color: var(--gray);
+            font-weight: 400;
+        }
+        
+        /* ================================================================
+           بطاقة الرصيد الرئيسية
+           ================================================================ */
+        .balance-card {
+            background: var(--primary-gradient);
+            border-radius: var(--radius-lg);
+            padding: 28px 24px;
+            margin: 16px 0 20px 0;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(108, 60, 225, 0.4);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .balance-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px rgba(108, 60, 225, 0.5);
+        }
+        
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -30%;
+            right: -20%;
+            width: 180px;
+            height: 180px;
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 50%;
+        }
+        
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40%;
+            left: -10%;
+            width: 220px;
+            height: 220px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 50%;
+        }
+        
+        .balance-card .balance-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .balance-card .balance-label {
+            font-size: 13px;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+            letter-spacing: 1px;
+        }
+        
+        .balance-card .balance-label i {
+            margin-left: 6px;
+        }
+        
+        .balance-card .balance-icon {
+            font-size: 28px;
+            color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .balance-card .balance-amount {
+            font-size: 44px;
+            font-weight: 900;
+            color: white;
+            letter-spacing: -1px;
+            position: relative;
+            z-index: 1;
+            margin-top: 4px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .balance-card .balance-amount .currency {
+            font-size: 20px;
+            font-weight: 500;
+            margin-left: 4px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .balance-card .balance-sub {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+            position: relative;
+            z-index: 1;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding-top: 12px;
+        }
+        
+        .balance-card .balance-sub span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .balance-card .balance-sub span i {
+            font-size: 12px;
+        }
+        
+        .balance-card .balance-sub strong {
+            color: white;
+            font-weight: 700;
+        }
+        
+        /* ================================================================
+           أزرار الإجراءات السريعة
+           ================================================================ */
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .quick-action-btn {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 6px;
+            text-align: center;
+            color: var(--light);
+            transition: var(--transition);
+            cursor: pointer;
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .quick-action-btn:hover {
+            background: rgba(108, 60, 225, 0.15);
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(108, 60, 225, 0.15);
+        }
+        
+        .quick-action-btn:active {
+            transform: scale(0.95);
+        }
+        
+        .quick-action-btn i {
+            font-size: 22px;
+            display: block;
+            margin-bottom: 4px;
+            background: var(--esim-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .quick-action-btn span {
+            font-size: 12px;
+            font-weight: 500;
+            display: block;
+        }
+        
+        .quick-action-btn .badge {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            background: var(--danger);
+            color: white;
+            font-size: 9px;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            -webkit-text-fill-color: white;
+            box-shadow: 0 2px 10px rgba(255, 61, 113, 0.3);
+        }
+        
+        /* ================================================================
+           عنوان الأقسام
+           ================================================================ */
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--light);
+        }
+        
+        .section-title i {
+            color: var(--primary-light);
+            font-size: 18px;
+        }
+        
+        .section-title .more-link {
+            margin-right: auto;
+            font-size: 12px;
+            color: var(--gray);
+            font-weight: 400;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .section-title .more-link:hover {
+            color: var(--primary-light);
+        }
+        
+        /* ================================================================
+           الدول - Country Grid
+           ================================================================ */
+        .countries-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .country-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 10px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .country-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: 0 4px 20px rgba(108, 60, 225, 0.15);
+        }
+        
+        .country-card:active {
+            transform: scale(0.95);
+        }
+        
+        .country-card.selected {
+            border-color: var(--secondary);
+            background: rgba(0, 212, 170, 0.08);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.1);
+        }
+        
+        .country-card .flag {
+            font-size: 28px;
+            display: block;
+            line-height: 1.2;
+        }
+        
+        .country-card .name {
+            font-size: 11px;
+            font-weight: 500;
+            margin-top: 4px;
+            color: var(--light);
+        }
+        
+        .country-card .code {
+            font-size: 9px;
+            color: var(--gray);
+        }
+        
+        /* ================================================================
+           باقات eSIM
+           ================================================================ */
+        .packages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .package-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .package-card:hover {
+            border-color: var(--primary);
+            background: rgba(108, 60, 225, 0.05);
+            transform: translateX(-3px);
+        }
+        
+        .package-card:active {
+            transform: scale(0.98);
+        }
+        
+        .package-card.selected {
+            border-color: var(--secondary);
+            background: rgba(0, 212, 170, 0.05);
+            box-shadow: 0 0 20px rgba(0, 212, 170, 0.05);
+        }
+        
+        .package-card .pkg-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        
+        .package-card .pkg-name {
+            font-weight: 700;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .package-card .pkg-name .pkg-icon {
+            font-size: 20px;
+        }
+        
+        .package-card .pkg-details {
+            font-size: 12px;
+            color: var(--gray);
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+        
+        .package-card .pkg-details span {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .package-card .pkg-details i {
+            font-size: 12px;
+        }
+        
+        .package-card .pkg-right {
+            text-align: left;
+        }
+        
+        .package-card .pkg-price {
+            font-weight: 800;
+            font-size: 18px;
+            color: var(--secondary);
+        }
+        
+        .package-card .pkg-price .pkg-currency {
+            font-size: 12px;
+            font-weight: 400;
+            color: var(--gray);
+        }
+        
+        .package-card .pkg-discount {
+            font-size: 11px;
+            color: var(--danger);
+            text-decoration: line-through;
+        }
+        
+        .package-card .pkg-popular {
+            font-size: 9px;
+            background: var(--warning);
+            color: var(--dark);
+            padding: 1px 8px;
+            border-radius: 10px;
+            font-weight: 700;
+        }
+        
+        /* ================================================================
+           الأزرار الرئيسية
+           ================================================================ */
+        .btn {
+            padding: 14px 24px;
+            border: none;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        
+        .btn:active::after {
+            width: 300px;
+            height: 300px;
+        }
+        
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(108, 60, 225, 0.3);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(108, 60, 225, 0.4);
+        }
+        
+        .btn-primary:active {
+            transform: scale(0.97);
+        }
+        
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--light);
+            border: 1px solid var(--glass-border);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .btn-success {
+            background: var(--secondary-gradient);
+            color: white;
+            box-shadow: 0 4px 15px rgba(0, 212, 170, 0.3);
+        }
+        
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 212, 170, 0.4);
+        }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), var(--danger-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(255, 61, 113, 0.3);
+        }
+        
+        .btn-warning {
+            background: linear-gradient(135deg, var(--warning), var(--warning-dark));
+            color: white;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            color: var(--primary-light);
+            border: 2px solid var(--primary-light);
+        }
+        
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .btn .spinner {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        /* ================================================================
+           مودال - Modal
+           ================================================================ */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: var(--blur);
+            -webkit-backdrop-filter: var(--blur);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 16px;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-box {
+            background: var(--dark-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius);
+            padding: 28px 24px;
+            max-width: 440px;
+            width: 100%;
+            max-height: 92vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s ease;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        
+        .modal-box::-webkit-scrollbar {
+            width: 3px;
+        }
+        
+        .modal-box::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+        
+        .modal-box .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .modal-box .modal-header h3 {
+            font-size: 20px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .modal-box .modal-header h3 i {
+            color: var(--primary-light);
+        }
+        
+        .modal-box .modal-close {
+            background: rgba(255, 255, 255, 0.05);
+            border: none;
+            color: var(--gray);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 18px;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-box .modal-close:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        /* ================================================================
+           النماذج - Forms
+           ================================================================ */
+        .form-group {
+            margin-bottom: 16px;
+        }
+        
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--gray);
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .form-group label .required {
+            color: var(--danger);
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            color: var(--light);
+            font-size: 15px;
+            transition: var(--transition);
+            outline: none;
+            font-family: var(--font-family);
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(108, 60, 225, 0.15);
+            background: rgba(255, 255, 255, 0.06);
+        }
+        
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--gray-dark);
+        }
+        
+        .form-group input:disabled,
+        .form-group select:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .form-group select {
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238A8FA3' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: left 12px center;
+            padding-left: 36px;
+        }
+        
+        /* ================================================================
+           رفع الملفات
+           ================================================================ */
+        .file-upload-zone {
+            border: 2px dashed var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 24px 16px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .file-upload-zone:hover {
+            border-color: var(--primary);
+            background: rgba(108, 60, 225, 0.05);
+        }
+        
+        .file-upload-zone.dragover {
+            border-color: var(--secondary);
+            background: rgba(0, 212, 170, 0.05);
+        }
+        
+        .file-upload-zone i {
+            font-size: 32px;
+            color: var(--gray);
+            display: block;
+            margin-bottom: 8px;
+        }
+        
+        .file-upload-zone .file-label {
+            font-size: 14px;
+            color: var(--gray);
+        }
+        
+        .file-upload-zone .file-sub {
+            font-size: 12px;
+            color: var(--gray-dark);
+        }
+        
+        .file-upload-zone input[type="file"] {
+            display: none;
+        }
+        
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        
+        .file-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 4px 12px 4px 8px;
+            border-radius: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid var(--glass-border);
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .file-item i {
+            color: var(--secondary);
+        }
+        
+        .file-item .remove-file {
+            color: var(--danger);
+            cursor: pointer;
+            font-size: 14px;
+            transition: var(--transition);
+        }
+        
+        .file-item .remove-file:hover {
+            transform: scale(1.2);
+        }
+        
+        /* ================================================================
+           قائمة الطلبات
+           ================================================================ */
+        .orders-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .order-item {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 16px;
+            transition: var(--transition);
+        }
+        
+        .order-item:hover {
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .order-item .order-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+        }
+        
+        .order-item .order-amount {
+            font-size: 18px;
+            font-weight: 700;
+        }
+        
+        .order-item .order-amount .currency-sm {
+            font-size: 13px;
+            font-weight: 400;
+            color: var(--gray);
+        }
+        
+        .order-item .order-status {
+            font-size: 11px;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .order-item .order-status.pending {
+            background: rgba(255, 184, 0, 0.15);
+            color: var(--warning);
+        }
+        
+        .order-item .order-status.accepted {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--secondary);
+        }
+        
+        .order-item .order-status.rejected {
+            background: rgba(255, 61, 113, 0.15);
+            color: var(--danger);
+        }
+        
+        .order-item .order-status.delivered {
+            background: rgba(45, 156, 219, 0.15);
+            color: var(--info);
+        }
+        
+        .order-item .order-status.completed {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--secondary);
+        }
+        
+        .order-item .order-status.expired {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--gray);
+        }
+        
+        .order-item .order-status.refunded {
+            background: rgba(255, 61, 113, 0.15);
+            color: var(--danger);
+        }
+        
+        .order-item .order-bottom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+            font-size: 12px;
+            color: var(--gray);
+            flex-wrap: wrap;
+            gap: 4px;
+        }
+        
+        .order-item .order-bottom .order-method {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .order-item .order-bottom .order-country {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .order-item .order-timer {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--secondary);
+            direction: ltr;
+            font-variant-numeric: tabular-nums;
+        }
+        
+        .order-item .order-timer.warning {
+            color: var(--warning);
+        }
+        
+        .order-item .order-timer.danger {
+            color: var(--danger);
+            animation: pulse 1s infinite;
+        }
+        
+        .order-item .order-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        
+        .order-item .order-actions button {
+            padding: 4px 14px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .order-item .order-actions .btn-view {
+            background: rgba(108, 60, 225, 0.15);
+            color: var(--primary-light);
+        }
+        
+        .order-item .order-actions .btn-view:hover {
+            background: rgba(108, 60, 225, 0.25);
+        }
+        
+        .order-item .order-actions .btn-activate {
+            background: rgba(0, 212, 170, 0.15);
+            color: var(--secondary);
+        }
+        
+        .order-item .order-actions .btn-activate:hover {
+            background: rgba(0, 212, 170, 0.25);
+        }
+        
+        /* ================================================================
+           الإشعارات - Toast
+           ================================================================ */
+        .toast-container {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-width: 380px;
+            width: 100%;
+        }
+        
+        .toast {
+            background: var(--dark-card);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 14px 18px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: slideInRight 0.4s ease;
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            border-right: 4px solid var(--gray);
+        }
+        
+        .toast.success {
+            border-right-color: var(--secondary);
+        }
+        
+        .toast.error {
+            border-right-color: var(--danger);
+        }
+        
+        .toast.warning {
+            border-right-color: var(--warning);
+        }
+        
+        .toast.info {
+            border-right-color: var(--info);
+        }
+        
+        .toast .toast-icon {
+            font-size: 20px;
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+        
+        .toast .toast-content {
+            flex: 1;
+        }
+        
+        .toast .toast-content .toast-title {
+            font-weight: 700;
+            font-size: 14px;
+        }
+        
+        .toast .toast-content .toast-message {
+            font-size: 13px;
+            color: var(--gray);
+            line-height: 1.4;
+        }
+        
+        .toast .toast-close {
+            background: none;
+            border: none;
+            color: var(--gray);
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+        
+        .toast .toast-close:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+        
+        /* ================================================================
+           صفحة تسجيل الدخول
+           ================================================================ */
+        .auth-page {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 600px;
+            padding: 20px 0;
+        }
+        
+        .auth-page .auth-logo {
+            font-size: 52px;
+            font-weight: 900;
+            background: var(--esim-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .auth-page .auth-logo i {
+            -webkit-text-fill-color: var(--primary-light);
+            font-size: 40px;
+        }
+        
+        .auth-page .auth-sub {
+            color: var(--gray);
+            font-size: 14px;
+            margin-bottom: 28px;
+        }
+        
+        .auth-page .auth-box {
+            width: 100%;
+        }
+        
+        .auth-page .auth-divider {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            margin: 20px 0;
+            color: var(--gray);
+            font-size: 13px;
+        }
+        
+        .auth-page .auth-divider::before,
+        .auth-page .auth-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--glass-border);
+        }
+        
+        .auth-page .toggle-link {
+            color: var(--primary-light);
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            background: none;
+            border: none;
+            font-size: 14px;
+        }
+        
+        .auth-page .toggle-link:hover {
+            color: var(--secondary);
+        }
+        
+        /* ================================================================
+           الحالات الفارغة
+           ================================================================ */
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--gray);
+        }
+        
+        .empty-state i {
+            font-size: 48px;
+            color: var(--glass-border);
+            margin-bottom: 12px;
+            display: block;
+        }
+        
+        .empty-state h4 {
+            color: var(--light);
+            margin-bottom: 4px;
+            font-size: 18px;
+        }
+        
+        .empty-state p {
+            font-size: 14px;
+            color: var(--gray-dark);
+        }
+        
+        /* ================================================================
+           تفاصيل eSIM (عرض البطاقة)
+           ================================================================ */
+        .esim-details {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-top: 12px;
+        }
+        
+        .esim-details .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            font-size: 13px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .esim-details .detail-row:last-child {
+            border-bottom: none;
+        }
+        
+        .esim-details .detail-label {
+            color: var(--gray);
+        }
+        
+        .esim-details .detail-value {
+            font-weight: 600;
+            direction: ltr;
+            text-align: left;
+        }
+        
+        .esim-details .qr-code {
+            display: flex;
+            justify-content: center;
+            margin: 12px 0;
+        }
+        
+        .esim-details .qr-code img {
+            max-width: 150px;
+            border-radius: var(--radius-xs);
+            background: white;
+            padding: 8px;
+        }
+        
+        /* ================================================================
+           الإحالات - Referral
+           ================================================================ */
+        .referral-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--radius-sm);
+            padding: 16px;
+            margin-top: 12px;
+        }
+        
+        .referral-box .ref-code {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 16px;
+            border-radius: var(--radius-xs);
+            font-size: 18px;
+            font-weight: 800;
+            text-align: center;
+            letter-spacing: 2px;
+            color: var(--primary-light);
+            direction: ltr;
+            font-family: monospace;
+            margin: 8px 0;
+        }
+        
+        .referral-box .ref-stats {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            font-size: 13px;
+            color: var(--gray);
+        }
+        
+        .referral-box .ref-stats strong {
+            color: var(--light);
+        }
+        
+        /* ================================================================
+           التحريك - Animations
+           ================================================================ */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        /* ================================================================
+           فئات مساعدة
+           ================================================================ */
+        .hidden {
+            display: none !important;
+        }
+        
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .text-left {
+            text-align: left;
+        }
+        
+        .text-muted {
+            color: var(--gray);
+        }
+        
+        .text-primary {
+            color: var(--primary-light);
+        }
+        
+        .text-success {
+            color: var(--secondary);
+        }
+        
+        .text-danger {
+            color: var(--danger);
+        }
+        
+        .text-warning {
+            color: var(--warning);
+        }
+        
+        .mt-4 { margin-top: 4px; }
+        .mt-8 { margin-top: 8px; }
+        .mt-12 { margin-top: 12px; }
+        .mt-16 { margin-top: 16px; }
+        .mt-20 { margin-top: 20px; }
+        .mt-24 { margin-top: 24px; }
+        
+        .mb-4 { margin-bottom: 4px; }
+        .mb-8 { margin-bottom: 8px; }
+        .mb-12 { margin-bottom: 12px; }
+        .mb-16 { margin-bottom: 16px; }
+        
+        .gap-4 { gap: 4px; }
+        .gap-8 { gap: 8px; }
+        .gap-12 { gap: 12px; }
+        
+        .flex { display: flex; }
+        .flex-center { display: flex; align-items: center; justify-content: center; }
+        .flex-between { display: flex; justify-content: space-between; align-items: center; }
+        .flex-col { display: flex; flex-direction: column; }
+        .flex-wrap { flex-wrap: wrap; }
+        
+        .w-full { width: 100%; }
+        .w-auto { width: auto; }
+        
+        .relative { position: relative; }
+        .absolute { position: absolute; }
+        
+        /* ================================================================
+           استجابة - Responsive
+           ================================================================ */
+        @media (max-width: 480px) {
+            .app-container {
+                padding: 14px;
+                border-radius: var(--radius-lg);
+                min-height: 600px;
+            }
+            
+            .status-bar .logo {
+                font-size: 18px;
+            }
+            
+            .status-bar .logo .esim-tag {
+                font-size: 8px;
+                padding: 1px 8px;
+            }
+            
+            .balance-card .balance-amount {
+                font-size: 34px;
+            }
+            
+            .balance-card {
+                padding: 20px 16px;
+            }
+            
+            .quick-actions {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 6px;
+            }
+            
+            .quick-action-btn {
+                padding: 10px 4px;
+            }
+            
+            .quick-action-btn i {
+                font-size: 18px;
+            }
+            
+            .quick-action-btn span {
+                font-size: 10px;
+            }
+            
+            .countries-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .country-card .flag {
+                font-size: 22px;
+            }
+            
+            .country-card .name {
+                font-size: 10px;
+            }
+            
+            .modal-box {
+                padding: 20px 16px;
+                border-radius: var(--radius-lg);
+            }
+            
+            .toast-container {
+                left: 8px;
+                right: 8px;
+                max-width: 100%;
+                top: 8px;
+            }
+            
+            .package-card {
+                padding: 12px;
+                flex-direction: column;
+                align-items: stretch;
+                gap: 6px;
+            }
+            
+            .package-card .pkg-right {
+                text-align: right;
+            }
+            
+            .order-item .order-top {
+                flex-direction: column;
+                gap: 6px;
+            }
+        }
+        
+        @media (max-width: 360px) {
+            .quick-actions {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .countries-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .balance-card .balance-amount {
+                font-size: 28px;
+            }
+        }
+        
+        /* ================================================================
+           وضع الإضاءة - Light Mode (اختياري)
+           ================================================================ */
+        @media (prefers-color-scheme: light) {
+            :root {
+                --dark-bg: #F5F7FA;
+                --dark-card: #FFFFFF;
+                --dark-light: #E8ECF1;
+                --light: #1A1A2E;
+                --gray: #6B7083;
+                --gray-light: #8A8FA3;
+                --glass-bg: rgba(0, 0, 0, 0.03);
+                --glass-border: rgba(0, 0, 0, 0.08);
+                --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.08);
+            }
+            
+            .app-container {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: var(--blur);
+            }
+            
+            .modal-box {
+                background: white;
+            }
+            
+            .balance-card {
+                box-shadow: 0 8px 30px rgba(108, 60, 225, 0.2);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ================================================================
+         حاوية الإشعارات (Toast)
+         ================================================================ -->
+    <div class="toast-container" id="toastContainer"></div>
+    
+    <!-- ================================================================
+         التطبيق الرئيسي
+         ================================================================ -->
+    <div class="app-container" id="app">
+        
+        <!-- ====== صفحة المصادقة (تسجيل الدخول) ====== -->
+        <div id="authPage" class="auth-page">
+            <div class="auth-logo">
+                <i class="fas fa-sim-card"></i>
+                eSIM
+            </div>
+            <div class="auth-sub">نظام إدارة بطاقات eSIM الرقمية</div>
+            
+            <!-- نموذج تسجيل الدخول -->
+            <div class="auth-box" id="loginForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> اسم المستخدم أو البريد</label>
+                    <input type="text" id="loginUsername" placeholder="أدخل اسم المستخدم" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> كلمة المرور</label>
+                    <input type="password" id="loginPassword" placeholder="أدخل كلمة المرور" required>
+                </div>
+                <button class="btn btn-primary" id="loginBtn" type="button">
+                    <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                </button>
+                
+                <div class="auth-divider">أو</div>
+                
+                <button class="btn btn-secondary" id="showRegisterBtn" type="button">
+                    <i class="fas fa-user-plus"></i> إنشاء حساب جديد
+                </button>
+            </div>
+            
+            <!-- نموذج التسجيل -->
+            <div class="auth-box hidden" id="registerForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> اسم المستخدم <span class="required">*</span></label>
+                    <input type="text" id="regUsername" placeholder="أدخل اسم المستخدم" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> البريد الإلكتروني <span class="required">*</span></label>
+                    <input type="email" id="regEmail" placeholder="example@mail.com" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user-tag"></i> الاسم الكامل</label>
+                    <input type="text" id="regFullName" placeholder="الاسم الكامل">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                    <input type="text" id="regPhone" placeholder="رقم الهاتف">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-globe"></i> الدولة</label>
+                    <input type="text" id="regCountry" placeholder="مصر">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock"></i> كلمة المرور <span class="required">*</span></label>
+                    <input type="password" id="regPassword" placeholder="كلمة مرور قوية (6 أحرف على الأقل)" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-gift"></i> كود الإحالة (اختياري)</label>
+                    <input type="text" id="regReferral" placeholder="أدخل كود الإحالة إن وجد">
+                </div>
+                <button class="btn btn-primary" id="registerBtn" type="button">
+                    <i class="fas fa-check"></i> إنشاء الحساب
+                </button>
+                
+                <div class="auth-divider">لديك حساب؟</div>
+                
+                <button class="btn btn-secondary" id="showLoginBtn" type="button">
+                    <i class="fas fa-sign-in-alt"></i> تسجيل الدخول
+                </button>
+            </div>
+        </div>
+        
+        <!-- ====== الصفحة الرئيسية ====== -->
+        <div id="mainPage" class="hidden">
+            
+            <!-- شريط الحالة -->
+            <div class="status-bar">
+                <div class="logo">
+                    <i class="fas fa-sim-card"></i>
+                    eSIM
+                    <span class="esim-tag">v3</span>
+                </div>
+                <div class="user-info">
+                    <div>
+                        <div class="user-name" id="userNameDisplay">مستخدم</div>
+                        <div class="user-role" id="userRoleDisplay">عميل</div>
+                    </div>
+                    <div class="user-avatar" id="userAvatar">
+                        م
+                        <span class="online-dot"></span>
+                    </div>
+                    <button id="logoutBtn" style="background:none;border:none;color:var(--gray);cursor:pointer;font-size:18px;padding:4px;transition:var(--transition);">
+                        <i class="fas fa-sign-out-alt"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <!-- بطاقة الرصيد -->
+            <div class="balance-card" id="balanceCard">
+                <div class="balance-top">
+                    <div>
+                        <div class="balance-label"><i class="fas fa-wallet"></i> الرصيد المتاح</div>
+                        <div class="balance-amount">
+                            <span class="currency">ج.م</span>
+                            <span id="balanceAmount">0.00</span>
+                        </div>
+                    </div>
+                    <div class="balance-icon">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                </div>
+                <div class="balance-sub">
+                    <span><i class="fas fa-shopping-bag"></i> الطلبات: <strong id="totalOrders">0</strong></span>
+                    <span><i class="fas fa-check-circle"></i> المكتملة: <strong id="completedOrders">0</strong></span>
+                </div>
+            </div>
+            
+            <!-- أزرار الإجراءات السريعة -->
+            <div class="quick-actions">
+                <div class="quick-action-btn" id="newOrderBtn">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>طلب جديد</span>
+                </div>
+                <div class="quick-action-btn" id="ordersBtn">
+                    <i class="fas fa-list"></i>
+                    <span>طلباتي</span>
+                    <span class="badge" id="pendingBadge" style="display:none;">0</span>
+                </div>
+                <div class="quick-action-btn" id="notificationsBtn">
+                    <i class="fas fa-bell"></i>
+                    <span>إشعارات</span>
+                    <span class="badge" id="notifBadge" style="display:none;">0</span>
+                </div>
+                <div class="quick-action-btn" id="profileBtn">
+                    <i class="fas fa-user-cog"></i>
+                    <span>الملف الشخصي</span>
+                </div>
+            </div>
+            
+            <!-- الدول -->
+            <div class="section-title">
+                <i class="fas fa-globe-asia"></i> اختر الدولة
+                <span class="more-link" id="showAllCountries">عرض الكل</span>
+            </div>
+            <div class="countries-grid" id="countriesGrid">
+                <!-- سيتم عرض الدول ديناميكياً -->
+            </div>
+            
+            <!-- الباقات -->
+            <div class="section-title">
+                <i class="fas fa-tags"></i> باقات eSIM
+                <span class="more-link" id="showAllPackages">عرض الكل</span>
+            </div>
+            <div class="packages-list" id="packagesList">
+                <!-- سيتم عرض الباقات ديناميكياً -->
+            </div>
+            
+            <!-- زر طلب جديد -->
+            <button class="btn btn-primary" id="requestOrderBtn">
+                <i class="fas fa-sim-card"></i> طلب بطاقة eSIM
+            </button>
+            
+            <!-- قسم الطلبات -->
+            <div id="ordersSection" class="hidden mt-16">
+                <div class="flex-between" style="margin-bottom:12px;">
+                    <div class="section-title" style="margin-bottom:0;">
+                        <i class="fas fa-history"></i> طلباتي
+                    </div>
+                    <div style="display:flex;gap:8px;">
+                        <select id="orderFilter" style="background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:var(--radius-xs);padding:4px 8px;color:var(--light);font-size:12px;outline:none;">
+                            <option value="">الكل</option>
+                            <option value="pending">⏳ معلق</option>
+                            <option value="accepted">✅ مقبول</option>
+                            <option value="delivered">📱 مسلم</option>
+                            <option value="completed">✔️ مكتمل</option>
+                            <option value="rejected">❌ مرفوض</option>
+                            <option value="expired">⏰ منتهي</option>
+                        </select>
+                        <button class="btn btn-secondary" style="width:auto;padding:4px 12px;font-size:12px;" id="closeOrdersBtn">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+                <div id="ordersList" class="orders-list">
+                    <!-- سيتم عرض الطلبات هنا -->
+                </div>
+            </div>
+            
+            <!-- قسم الملف الشخصي -->
+            <div id="profileSection" class="hidden mt-16">
+                <!-- محتوى الملف الشخصي -->
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- ================================================================
+         مودال طلب eSIM
+         ================================================================ -->
+    <div class="modal-overlay" id="orderModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fas fa-sim-card"></i> طلب بطاقة eSIM</h3>
+                <button class="modal-close" id="closeOrderModal"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="orderForm">
+                <div class="form-group">
+                    <label><i class="fas fa-globe"></i> الدولة <span class="required">*</span></label>
+                    <select id="orderCountry" required>
+                        <option value="">اختر الدولة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> الباقة <span class="required">*</span></label>
+                    <select id="orderPackage" required>
+                        <option value="">اختر الباقة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> رقم الهاتف <span class="required">*</span></label>
+                    <input type="text" id="orderPhone" placeholder="أدخل رقم الهاتف" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-money-bill-wave"></i> المبلغ <span class="required">*</span></label>
+                    <input type="number" id="orderAmount" placeholder="المبلغ المطلوب" required min="1">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-sticky-note"></i> ملاحظات</label>
+                    <textarea id="orderNotes" placeholder="أي ملاحظات إضافية..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-images"></i> مرفقات (إثبات الدفع)</label>
+                    <div class="file-upload-zone" id="fileUploadZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <div class="file-label">اضغط لرفع الملفات</div>
+                        <div class="file-sub">يدعم الصور و PDF - حد أقصى 5 ملفات</div>
+                        <input type="file" id="fileInput" accept="image/*,application/pdf" multiple>
+                    </div>
+                    <div class="file-list" id="fileList"></div>
+                </div>
+                <div class="form-group">
+                    <div class="flex-between" style="font-size:13px;color:var(--gray);">
+                        <span>رصيدك الحالي:</span>
+                        <span style="font-weight:700;color:var(--light);" id="modalBalance">0.00 ج.م</span>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="submitOrderBtn">
+                    <i class="fas fa-paper-plane"></i> تأكيد الطلب
+                </button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- ================================================================
+         مودال الإشعارات
+         ================================================================ -->
+    <div class="modal-overlay" id="notificationsModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fas fa-bell"></i> الإشعارات</h3>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <button id="markAllReadBtn" style="background:none;border:none;color:var(--primary-light);cursor:pointer;font-size:12px;font-weight:600;">
+                        قراءة الكل
+                    </button>
+                    <button class="modal-close" id="closeNotificationsModal"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div id="notificationsList" style="display:flex;flex-direction:column;gap:8px;max-height:400px;overflow-y:auto;">
+                <!-- سيتم عرض الإشعارات هنا -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- ================================================================
+         مودال تفاصيل الطلب
+         ================================================================ -->
+    <div class="modal-overlay" id="orderDetailModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fas fa-file-invoice"></i> تفاصيل الطلب</h3>
+                <button class="modal-close" id="closeDetailModal"><i class="fas fa-times"></i></button>
+            </div>
+            <div id="orderDetailContent">
+                <!-- سيتم عرض التفاصيل هنا -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         مودال الملف الشخصي
+         ================================================================ -->
+    <div class="modal-overlay" id="profileModal">
+        <div class="modal-box">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-cog"></i> الملف الشخصي</h3>
+                <button class="modal-close" id="closeProfileModal"><i class="fas fa-times"></i></button>
+            </div>
+            <form id="profileForm">
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> اسم المستخدم</label>
+                    <input type="text" id="profileUsername" disabled>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-envelope"></i> البريد الإلكتروني</label>
+                    <input type="email" id="profileEmail" disabled>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user-tag"></i> الاسم الكامل</label>
+                    <input type="text" id="profileFullName" placeholder="الاسم الكامل">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-phone"></i> رقم الهاتف</label>
+                    <input type="text" id="profilePhone" placeholder="رقم الهاتف">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-globe"></i> الدولة</label>
+                    <input type="text" id="profileCountry" placeholder="الدولة">
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-gift"></i> كود الإحالة الخاص بك</label>
+                    <div style="display:flex;gap:8px;">
+                        <input type="text" id="profileReferralCode" disabled style="flex:1;">
+                        <button type="button" class="btn btn-secondary" style="width:auto;padding:8px 16px;" id="copyReferralBtn">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" id="updateProfileBtn">
+                    <i class="fas fa-save"></i> تحديث الملف الشخصي
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================================================================
+         JavaScript - العميل المتكامل
+         ================================================================ -->
+    <script>
+        // ================================================================
+        // نظام eSIM - Client Side (أكثر من 1500 سطر)
+        // ================================================================
+        
+        // ================================================================
+        // الحالة العامة
+        // ================================================================
+        const APP = {
+            user: null,
+            token: null,
+            balance: 0,
+            countries: ['مصر', 'السعودية', 'الإمارات', 'الكويت', 'قطر', 'عمان', 'البحرين', 'العراق', 'الأردن', 'المغرب', 'تونس', 'الجزائر', 'ليبيا', 'سوريا', 'لبنان', 'فلسطين', 'اليمن', 'السودان', 'تركيا', 'أوروبا', 'أمريكا', 'كندا', 'أستراليا', 'سنغافورة'],
+            countryFlags: {
+                'مصر': '🇪🇬', 'السعودية': '🇸🇦', 'الإمارات': '🇦🇪', 'الكويت': '🇰🇼',
+                'قطر': '🇶🇦', 'عمان': '🇴🇲', 'البحرين': '🇧🇭', 'العراق': '🇮🇶',
+                'الأردن': '🇯🇴', 'المغرب': '🇲🇦', 'تونس': '🇹🇳', 'الجزائر': '🇩🇿',
+                'ليبيا': '🇱🇾', 'سوريا': '🇸🇾', 'لبنان': '🇱🇧', 'فلسطين': '🇵🇸',
+                'اليمن': '🇾🇪', 'السودان': '🇸🇩', 'تركيا': '🇹🇷', 'أوروبا': '🇪🇺',
+                'أمريكا': '🇺🇸', 'كندا': '🇨🇦', 'أستراليا': '🇦🇺', 'سنغافورة': '🇸🇬'
+            },
+            packages: [],
+            orders: [],
+            notifications: [],
+            selectedFiles: [],
+            ws: null,
+            selectedCountry: null,
+            selectedPackage: null,
+            timerIntervals: {},
+            unreadCount: 0,
+        };
+        
+        // ================================================================
+        // عناصر DOM
+        // ================================================================
+        const $ = (id) => document.getElementById(id);
+        const DOM = {
+            // الصفحات
+            authPage: $('authPage'),
+            mainPage: $('mainPage'),
+            
+            // المصادقة
+            loginForm: $('loginForm'),
+            registerForm: $('registerForm'),
+            loginUsername: $('loginUsername'),
+            loginPassword: $('loginPassword'),
+            loginBtn: $('loginBtn'),
+            regUsername: $('regUsername'),
+            regEmail: $('regEmail'),
+            regFullName: $('regFullName'),
+            regPhone: $('regPhone'),
+            regCountry: $('regCountry'),
+            regPassword: $('regPassword'),
+            regReferral: $('regReferral'),
+            registerBtn: $('registerBtn'),
+            showLoginBtn: $('showLoginBtn'),
+            showRegisterBtn: $('showRegisterBtn'),
+            
+            // رئيسي
+            userNameDisplay: $('userNameDisplay'),
+            userRoleDisplay: $('userRoleDisplay'),
+            userAvatar: $('userAvatar'),
+            balanceAmount: $('balanceAmount'),
+            totalOrders: $('totalOrders'),
+            completedOrders: $('completedOrders'),
+            logoutBtn: $('logoutBtn'),
+            newOrderBtn: $('newOrderBtn'),
+            ordersBtn: $('ordersBtn'),
+            notificationsBtn: $('notificationsBtn'),
+            profileBtn: $('profileBtn'),
+            pendingBadge: $('pendingBadge'),
+            notifBadge: $('notifBadge'),
+            requestOrderBtn: $('requestOrderBtn'),
+            ordersSection: $('ordersSection'),
+            ordersList: $('ordersList'),
+            orderFilter: $('orderFilter'),
+            closeOrdersBtn: $('closeOrdersBtn'),
+            countriesGrid: $('countriesGrid'),
+            packagesList: $('packagesList'),
+            showAllCountries: $('showAllCountries'),
+            showAllPackages: $('showAllPackages'),
+            profileSection: $('profileSection'),
+            balanceCard: $('balanceCard'),
+            
+            // مودال الطلب
+            orderModal: $('orderModal'),
+            closeOrderModal: $('closeOrderModal'),
+            orderForm: $('orderForm'),
+            orderCountry: $('orderCountry'),
+            orderPackage: $('orderPackage'),
+            orderPhone: $('orderPhone'),
+            orderAmount: $('orderAmount'),
+            orderNotes: $('orderNotes'),
+            fileUploadZone: $('fileUploadZone'),
+            fileInput: $('fileInput'),
+            fileList: $('fileList'),
+            submitOrderBtn: $('submitOrderBtn'),
+            modalBalance: $('modalBalance'),
+            
+            // مودال الإشعارات
+            notificationsModal: $('notificationsModal'),
+            closeNotificationsModal: $('closeNotificationsModal'),
+            notificationsList: $('notificationsList'),
+            markAllReadBtn: $('markAllReadBtn'),
+            
+            // مودال التفاصيل
+            orderDetailModal: $('orderDetailModal'),
+            closeDetailModal: $('closeDetailModal'),
+            orderDetailContent: $('orderDetailContent'),
+            
+            // مودال الملف الشخصي
+            profileModal: $('profileModal'),
+            closeProfileModal: $('closeProfileModal'),
+            profileForm: $('profileForm'),
+            profileUsername: $('profileUsername'),
+            profileEmail: $('profileEmail'),
+            profileFullName: $('profileFullName'),
+            profilePhone: $('profilePhone'),
+            profileCountry: $('profileCountry'),
+            profileReferralCode: $('profileReferralCode'),
+            copyReferralBtn: $('copyReferralBtn'),
+            updateProfileBtn: $('updateProfileBtn'),
+            
+            // توست
+            toastContainer: $('toastContainer'),
+        };
+        
+        // ================================================================
+        // دوال مساعدة
+        // ================================================================
+        function showToast(title, message, type = 'info', duration = 5000) {
+            const icons = {
+                success: '✅',
+                error: '❌',
+                warning: '⚠️',
+                info: 'ℹ️'
+            };
+            
+            const colors = {
+                success: 'var(--secondary)',
+                error: 'var(--danger)',
+                warning: 'var(--warning)',
+                info: 'var(--info)'
+            };
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.style.borderRightColor = colors[type] || colors.info;
+            toast.innerHTML = `
+                <div class="toast-icon">${icons[type] || 'ℹ️'}</div>
+                <div class="toast-content">
+                    <div class="toast-title">${title}</div>
+                    <div class="toast-message">${message}</div>
+                </div>
+                <button class="toast-close" onclick="this.closest('.toast').remove()">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            DOM.toastContainer.appendChild(toast);
+            
+            // إزالة تلقائية
+            setTimeout(() => {
+                if (toast.parentElement) {
+                    toast.style.opacity = '0';
+                    toast.style.transform = 'translateX(40px)';
+                    setTimeout(() => toast.remove(), 400);
+                }
+            }, duration);
+        }
+        
+        function formatDate(date) {
+            return new Date(date).toLocaleString('ar-EG', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function formatCurrency(amount) {
+            return Number(amount).toFixed(2);
+        }
+        
+        function getStatusText(status) {
+            const map = {
+                pending: '⏳ قيد المراجعة',
+                accepted: '✅ مقبول',
+                rejected: '❌ مرفوض',
+                expired: '⏰ منتهي الصلاحية',
+                delivered: '📱 تم التسليم',
+                completed: '✔️ مكتمل',
+                refunded: '🔄 مسترد'
+            };
+            return map[status] || status;
+        }
+        
+        function getStatusClass(status) {
+            const map = {
+                pending: 'pending',
+                accepted: 'accepted',
+                rejected: 'rejected',
+                expired: 'expired',
+                delivered: 'delivered',
+                completed: 'completed',
+                refunded: 'refunded'
+            };
+            return map[status] || '';
+        }
+        
+        function getCountryFlag(country) {
+            return APP.countryFlags[country] || '🌍';
+        }
+        
+        function getEsimTypeLabel(type) {
+            const map = {
+                vodafone: '📱 فودافون',
+                instapay: '🏦 إنستا باي',
+                cash: '💰 كاش',
+                data_only: '📶 بيانات فقط',
+                voice_data: '📞 صوت وبيانات',
+                unlimited: '♾️ غير محدود'
+            };
+            return map[type] || type;
+        }
+        
+        // ================================================================
+        // API Calls
+        // ================================================================
+        async function apiCall(endpoint, options = {}) {
+            const headers = {
+                'Content-Type': 'application/json',
+                ...options.headers
+            };
+            
+            if (APP.token) {
+                headers['Authorization'] = `Bearer ${APP.token}`;
+            }
+            
+            const config = {
+                ...options,
+                headers,
+            };
+            
+            if (options.body && !(options.body instanceof FormData)) {
+                config.body = JSON.stringify(options.body);
+            }
+            
+            try {
+                const response = await fetch(endpoint, config);
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'حدث خطأ في الطلب');
+                }
+                return data;
+            } catch (error) {
+                if (!options.silent) {
+                    showToast('خطأ', error.message, 'error');
+                }
+                throw error;
+            }
+        }
+        
+        // ================================================================
+        // المصادقة
+        // ================================================================
+        async function login(username, password) {
+            try {
+                const data = await apiCall('/api/login', {
+                    method: 'POST',
+                    body: { username, password }
+                });
+                if (data.success) {
+                    APP.token = data.token;
+                    APP.user = data.user;
+                    localStorage.setItem('esim_token', data.token);
+                    localStorage.setItem('esim_user', JSON.stringify(data.user));
+                    showToast('مرحباً', `مرحباً ${data.user.fullName || data.user.username}`, 'success');
+                    initApp();
+                }
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        async function register(username, email, password, fullName, phone, country, referral) {
+            try {
+                const data = await apiCall('/api/register', {
+                    method: 'POST',
+                    body: { username, email, password, fullName, phone, country, referralCode: referral }
+                });
+                if (data.success) {
+                    APP.token = data.token;
+                    APP.user = data.user;
+                    localStorage.setItem('esim_token', data.token);
+                    localStorage.setItem('esim_user', JSON.stringify(data.user));
+                    showToast('🎉 تم التسجيل', 'تم إنشاء حسابك بنجاح!', 'success');
+                    initApp();
+                }
+                return data;
+            } catch (error) {
+                throw error;
+            }
+        }
+        
+        function logout() {
+            APP.token = null;
+            APP.user = null;
+            if (APP.ws) {
+                APP.ws.close();
+                APP.ws = null;
+            }
+            localStorage.removeItem('esim_token');
+            localStorage.removeItem('esim_user');
+            showToast('تم الخروج', 'تم تسجيل الخروج بنجاح', 'info');
+            showAuthPage();
+        }
+        
+        // ================================================================
+        // WebSocket
+        // ================================================================
+        function connectWebSocket() {
+            if (!APP.token || !APP.user) return;
+            
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}`;
+            
+            try {
+                APP.ws = new WebSocket(wsUrl);
+                
+                APP.ws.onopen = () => {
+                    console.log('🔗 WebSocket متصل');
+                    APP.ws.send(JSON.stringify({
+                        type: 'auth',
+                        userId: APP.user.id
+                    }));
+                };
+                
+                APP.ws.onmessage = (event) => {
+                    try {
+                        const data = JSON.parse(event.data);
+                        handleWebSocketMessage(data);
+                    } catch (e) {
+                        console.error('خطأ في رسالة WebSocket:', e);
+                    }
+                };
+                
+                APP.ws.onclose = () => {
+                    console.log('🔴 WebSocket مفصول، إعادة محاولة...');
+                    setTimeout(connectWebSocket, 3000);
+                };
+                
+                APP.ws.onerror = (error) => {
+                    console.error('خطأ WebSocket:', error);
+                };
+            } catch (e) {
+                console.error('فشل اتصال WebSocket:', e);
+            }
+        }
+        
+        function handleWebSocketMessage(data) {
+            if (data.type === 'notification') {
+                const notif = data.data;
+                APP.notifications.unshift(notif);
+                updateNotificationsBadge();
+                showToast(notif.title, notif.message, notif.type || 'info');
+                renderNotifications();
+            } else if (data.type === 'esim_accepted') {
+                const { orderId, country, amount } = data.data;
+                showToast('✅ تم قبول الطلب', `تم قبول طلب eSIM للدولة ${country}`, 'success');
+                fetchOrders();
+                fetchBalance();
+            } else if (data.type === 'esim_delivered') {
+                const { orderId, esimDetails, country } = data.data;
+                showToast('📱 تم تسليم البطاقة', `تم تسليم بطاقة eSIM للدولة ${country}`, 'success');
+                fetchOrders();
+                fetchBalance();
+                // عرض تفاصيل البطاقة
+                if (esimDetails) {
+                    setTimeout(() => {
+                        showToast('📋 بيانات البطاقة', 'تم إرسال بيانات بطاقة eSIM بنجاح', 'info');
+                    }, 1000);
+                }
+            } else if (data.type === 'esim_rejected') {
+                const { orderId, reason } = data.data;
+                showToast('❌ تم رفض الطلب', reason || 'تم رفض طلب eSIM', 'error');
+                fetchOrders();
+                fetchBalance();
+            } else if (data.type === 'unread_notifications') {
+                const unread = data.data || [];
+                APP.notifications = [...unread, ...APP.notifications];
+                renderNotifications();
+                updateNotificationsBadge();
+            }
+        }
+        
+        // ================================================================
+        // جلب البيانات
+        // ================================================================
+        async function fetchBalance() {
+            try {
+                const data = await apiCall('/api/user/balance');
+                if (data.success) {
+                    APP.balance = data.balance;
+                    DOM.balanceAmount.textContent = formatCurrency(data.balance);
+                    DOM.modalBalance.textContent = formatCurrency(data.balance) + ' ج.م';
+                }
+            } catch (error) {
+                console.error('خطأ في جلب الرصيد:', error);
+            }
+        }
+        
+        async function fetchOrders() {
+            try {
+                const status = DOM.orderFilter.value;
+                let url = '/api/esim/orders/user';
+                if (status) url += `?status=${status}`;
+                
+                const data = await apiCall(url);
+                if (data.success) {
+                    APP.orders = data.orders || [];
+                    renderOrders();
+                    updatePendingBadge();
+                }
+            } catch (error) {
+                console.error('خطأ في جلب الطلبات:', error);
+            }
+        }
+        
+        async function fetchNotifications() {
+            try {
+                const data = await apiCall('/api/notifications');
+                if (data.success) {
+                    APP.notifications = data.notifications || [];
+                    renderNotifications();
+                    updateNotificationsBadge();
+                }
+            } catch (error) {
+                console.error('خطأ في جلب الإشعارات:', error);
+            }
+        }
+        
+        async function fetchPackages() {
+            try {
+                const data = await apiCall('/api/esim/packages');
+                if (data.success) {
+                    APP.packages = data.packages || [];
+                    renderPackages();
+                }
+            } catch (error) {
+                console.error('خطأ في جلب الباقات:', error);
+            }
+        }
+        
+        async function fetchProfile() {
+            try {
+                const data = await apiCall('/api/user/profile');
+                if (data.success) {
+                    const user = data.user;
+                    APP.user = user;
+                    DOM.userNameDisplay.textContent = user.fullName || user.username;
+                    DOM.userAvatar.textContent = (user.fullName || user.username).charAt(0).toUpperCase();
+                    DOM.profileUsername.value = user.username;
+                    DOM.profileEmail.value = user.email;
+                    DOM.profileFullName.value = user.fullName || '';
+                    DOM.profilePhone.value = user.phone || '';
+                    DOM.profileCountry.value = user.country || '';
+                    DOM.profileReferralCode.value = user.referralCode || '';
+                    
+                    if (data.stats) {
+                        DOM.totalOrders.textContent = data.stats.orderCount || 0;
+                        DOM.completedOrders.textContent = data.stats.deliveredOrders || 0;
+                    }
+                }
+            } catch (error) {
+                console.error('خطأ في جلب الملف الشخصي:', error);
+            }
+        }
+        
+        // ================================================================
+        // عرض البيانات
+        // ================================================================
+        function renderCountries() {
+            const grid = DOM.countriesGrid;
+            grid.innerHTML = APP.countries.slice(0, 8).map(country => `
+                <div class="country-card" data-country="${country}" onclick="selectCountry('${country}')">
+                    <span class="flag">${getCountryFlag(country)}</span>
+                    <div class="name">${country}</div>
+                </div>
+            `).join('');
+        }
+        
+        function renderPackages() {
+            const list = DOM.packagesList;
+            if (APP.packages.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-box-open"></i>
+                        <h4>لا توجد باقات</h4>
+                        <p>سيتم إضافة باقات eSIM قريباً</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = APP.packages.slice(0, 5).map(pkg => `
+                <div class="package-card" data-id="${pkg._id}" onclick="selectPackage('${pkg._id}')">
+                    <div class="pkg-info">
+                        <div class="pkg-name">
+                            <span class="pkg-icon">${pkg.icon || '📱'}</span>
+                            ${pkg.name}
+                            ${pkg.isPopular ? '<span class="pkg-popular">⭐ رائج</span>' : ''}
+                        </div>
+                        <div class="pkg-details">
+                            <span><i class="fas fa-globe"></i> ${pkg.country}</span>
+                            <span><i class="fas fa-database"></i> ${pkg.dataAmount}</span>
+                            <span><i class="fas fa-calendar-alt"></i> ${pkg.validityDays} يوم</span>
+                            ${pkg.operator ? `<span><i class="fas fa-signal"></i> ${pkg.operator}</span>` : ''}
+                        </div>
+                    </div>
+                    <div class="pkg-right">
+                        <div class="pkg-price">
+                            ${pkg.discountedPrice ? `
+                                <span class="pkg-discount">${formatCurrency(pkg.price)}</span>
+                                ${formatCurrency(pkg.discountedPrice)}
+                            ` : formatCurrency(pkg.price)}
+                            <span class="pkg-currency">ج.م</span>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            
+            // تحديث قائمة الباقات في المودال
+            const select = DOM.orderPackage;
+            select.innerHTML = '<option value="">اختر الباقة</option>' + 
+                APP.packages.map(pkg => `
+                    <option value="${pkg._id}">${pkg.name} - ${pkg.country} (${pkg.dataAmount}) - ${formatCurrency(pkg.discountedPrice || pkg.price)} ج.م</option>
+                `).join('');
+        }
+        
+        function renderOrders() {
+            const list = DOM.ordersList;
+            if (APP.orders.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-inbox"></i>
+                        <h4>لا توجد طلبات</h4>
+                        <p>قم بإنشاء طلب eSIM جديد</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = APP.orders.map(order => {
+                const isAccepted = order.status === 'accepted';
+                const isDelivered = order.status === 'delivered';
+                const isCompleted = order.status === 'completed';
+                const isPending = order.status === 'pending';
+                const isRejected = order.status === 'rejected';
+                const isExpired = order.status === 'expired';
+                
+                let timerHtml = '';
+                if (isAccepted && order.expiresAt) {
+                    const expiresAt = new Date(order.expiresAt).getTime();
+                    const now = Date.now();
+                    const remaining = Math.max(0, Math.floor((expiresAt - now) / 1000));
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    const timerClass = remaining < 60 ? 'danger' : remaining < 120 ? 'warning' : '';
+                    timerHtml = `
+                        <div class="order-timer ${timerClass}" data-expires="${expiresAt}" data-id="${order._id}">
+                            ⏱ ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}
+                        </div>
+                    `;
+                }
+                
+                let actionsHtml = '';
+                if (isDelivered) {
+                    actionsHtml = `
+                        <div class="order-actions">
+                            <button class="btn-view" onclick="viewOrderDetail('${order._id}')">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                            <button class="btn-activate" onclick="activateEsim('${order._id}')">
+                                <i class="fas fa-play"></i> تفعيل
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    actionsHtml = `
+                        <div class="order-actions">
+                            <button class="btn-view" onclick="viewOrderDetail('${order._id}')">
+                                <i class="fas fa-eye"></i> عرض
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                return `
+                    <div class="order-item">
+                        <div class="order-top">
+                            <div>
+                                <div class="order-amount">
+                                    ${formatCurrency(order.amount)}
+                                    <span class="currency-sm">ج.م</span>
+                                </div>
+                                <div style="font-size:12px;color:var(--gray);margin-top:2px;">
+                                    ${getCountryFlag(order.country)} ${order.country}
+                                    <span style="margin:0 6px;">•</span>
+                                    ${getEsimTypeLabel(order.esimType)}
+                                </div>
+                            </div>
+                            <span class="order-status ${getStatusClass(order.status)}">
+                                ${getStatusText(order.status)}
+                            </span>
+                        </div>
+                        <div class="order-bottom">
+                            <span class="order-method">
+                                <i class="fas fa-calendar-alt"></i> ${formatDate(order.createdAt)}
+                            </span>
+                            <span class="order-country">
+                                <i class="fas fa-hashtag"></i> #${order._id.slice(-6)}
+                            </span>
+                            ${timerHtml}
+                        </div>
+                        ${actionsHtml}
+                        ${order.rejectionReason ? `<div style="font-size:12px;color:var(--danger);margin-top:4px;">🚫 ${order.rejectionReason}</div>` : ''}
+                    </div>
+                `;
+            }).join('');
+            
+            // بدء المؤقتات
+            startOrderTimers();
+        }
+        
+        function renderNotifications() {
+            const list = DOM.notificationsList;
+            if (APP.notifications.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-bell-slash"></i>
+                        <h4>لا توجد إشعارات</h4>
+                        <p>ستظهر الإشعارات هنا عند استلامها</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            list.innerHTML = APP.notifications.map(n => `
+                <div style="background:${n.isRead ? 'rgba(255,255,255,0.02)' : 'rgba(108,60,225,0.06)'};border-radius:12px;padding:12px 16px;border:1px solid ${n.isRead ? 'var(--glass-border)' : 'var(--primary)'};transition:var(--transition);cursor:pointer;" onclick="markNotificationRead('${n._id}')">
+                    <div style="display:flex;justify-content:space-between;align-items:start;">
+                        <div style="flex:1;">
+                            <div style="font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;">
+                                ${n.type === 'success' ? '✅' : n.type === 'error' ? '❌' : n.type === 'warning' ? '⚠️' : 'ℹ️'}
+                                ${n.title}
+                            </div>
+                            <div style="font-size:13px;color:var(--gray);margin-top:4px;">${n.message}</div>
+                            <div style="font-size:11px;color:var(--gray-dark);margin-top:4px;">${formatDate(n.createdAt)}</div>
+                        </div>
+                        ${!n.isRead ? `<span style="background:var(--primary);width:8px;height:8px;border-radius:50%;display:inline-block;flex-shrink:0;margin-top:4px;"></span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function updatePendingBadge() {
+            const pending = APP.orders.filter(o => o.status === 'pending').length;
+            const badge = DOM.pendingBadge;
+            if (pending > 0) {
+                badge.textContent = pending;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        function updateNotificationsBadge() {
+            const unread = APP.notifications.filter(n => !n.isRead).length;
+            APP.unreadCount = unread;
+            const badge = DOM.notifBadge;
+            if (unread > 0) {
+                badge.textContent = unread;
+                badge.style.display = 'flex';
+            } else {
+                badge.style.display = 'none';
+            }
+        }
+        
+        // ================================================================
+        // المؤقتات
+        // ================================================================
+        function startOrderTimers() {
+            Object.keys(APP.timerIntervals).forEach(key => {
+                clearInterval(APP.timerIntervals[key]);
+                delete APP.timerIntervals[key];
+            });
+            
+            document.querySelectorAll('.order-timer[data-expires]').forEach(el => {
+                const id = el.dataset.id;
+                const expiresAt = parseInt(el.dataset.expires);
+                
+                APP.timerIntervals[id] = setInterval(() => {
+                    const now = Date.now();
+                    const remaining = Math.max(0, Math.floor((expiresAt - now) / 1000));
+                    
+                    if (remaining <= 0) {
+                        clearInterval(APP.timerIntervals[id]);
+                        el.textContent = '⏰ انتهى الوقت';
+                        el.className = 'order-timer danger';
+                        fetchOrders();
+                        return;
+                    }
+                    
+                    const minutes = Math.floor(remaining / 60);
+                    const seconds = remaining % 60;
+                    el.textContent = `⏱ ${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+                    
+                    if (remaining < 60) {
+                        el.className = 'order-timer danger';
+                    } else if (remaining < 120) {
+                        el.className = 'order-timer warning';
+                    }
+                }, 1000);
+            });
+        }
+        
+        // ================================================================
+        // إجراءات المستخدم
+        // ================================================================
+        
+        // اختيار الدولة
+        window.selectCountry = function(country) {
+            APP.selectedCountry = country;
+            document.querySelectorAll('.country-card').forEach(c => c.classList.remove('selected'));
+            document.querySelector(`.country-card[data-country="${country}"]`)?.classList.add('selected');
+            
+            // تحديث المودال
+            DOM.orderCountry.value = country;
+            
+            // تصفية الباقات حسب الدولة
+            const filtered = APP.packages.filter(p => p.country === country);
+            const select = DOM.orderPackage;
+            select.innerHTML = '<option value="">اختر الباقة</option>' + 
+                filtered.map(pkg => `
+                    <option value="${pkg._id}">${pkg.name} (${pkg.dataAmount}) - ${formatCurrency(pkg.discountedPrice || pkg.price)} ج.م</option>
+                `).join('');
+            
+            if (filtered.length > 0) {
+                showToast('🌍 تم الاختيار', `تم اختيار الدولة ${country}`, 'success');
+            } else {
+                showToast('تنبيه', `لا توجد باقات متاحة للدولة ${country} حالياً`, 'warning');
+            }
+        };
+        
+        // اختيار الباقة
+        window.selectPackage = function(packageId) {
+            const pkg = APP.packages.find(p => p._id === packageId);
+            if (pkg) {
+                APP.selectedPackage = pkg;
+                document.querySelectorAll('.package-card').forEach(c => c.classList.remove('selected'));
+                document.querySelector(`.package-card[data-id="${packageId}"]`)?.classList.add('selected');
+                
+                // تحديث المودال
+                DOM.orderPackage.value = packageId;
+                DOM.orderAmount.value = pkg.discountedPrice || pkg.price;
+                DOM.orderCountry.value = pkg.country;
+                
+                // اختيار الدولة تلقائياً
+                APP.selectedCountry = pkg.country;
+                document.querySelectorAll('.country-card').forEach(c => c.classList.remove('selected'));
+                document.querySelector(`.country-card[data-country="${pkg.country}"]`)?.classList.add('selected');
+                
+                showToast('📦 تم الاختيار', `تم اختيار الباقة ${pkg.name}`, 'success');
+            }
+        };
+        
+        // عرض تفاصيل الطلب
+        window.viewOrderDetail = async function(orderId) {
+            try {
+                const data = await apiCall(`/api/esim/order/${orderId}`);
+                if (data.success) {
+                    const order = data.order;
+                    const timeRemaining = data.timeRemaining;
+                    
+                    let esimHtml = '';
+                    if (order.esimDetails && (order.esimDetails.iccid || order.esimDetails.activationCode)) {
+                        esimHtml = `
+                            <div class="esim-details">
+                                <div style="font-weight:700;margin-bottom:8px;color:var(--primary-light);">
+                                    <i class="fas fa-sim-card"></i> بيانات eSIM
+                                </div>
+                                ${order.esimDetails.iccid ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label">ICCID</span>
+                                        <span class="detail-value">${order.esimDetails.iccid}</span>
+                                    </div>
+                                ` : ''}
+                                ${order.esimDetails.activationCode ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label">كود التفعيل</span>
+                                        <span class="detail-value" style="font-size:14px;font-weight:800;color:var(--secondary);">${order.esimDetails.activationCode}</span>
+                                    </div>
+                                ` : ''}
+                                ${order.esimDetails.qrCode ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label">QR Code</span>
+                                        <span class="detail-value">${order.esimDetails.qrCode}</span>
+                                    </div>
+                                ` : ''}
+                                ${order.esimDetails.qrCodeBase64 ? `
+                                    <div class="qr-code">
+                                        <img src="${order.esimDetails.qrCodeBase64}" alt="QR Code">
+                                    </div>
+                                ` : ''}
+                                ${order.esimDetails.dataPlan ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label">باقة البيانات</span>
+                                        <span class="detail-value">${order.esimDetails.dataPlan}</span>
+                                    </div>
+                                ` : ''}
+                                ${order.esimDetails.validityDays ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label">صلاحية</span>
+                                        <span class="detail-value">${order.esimDetails.validityDays} يوم</span>
+                                    </div>
+                                ` : ''}
+                                ${order.esimDetails.operator ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label">المشغل</span>
+                                        <span class="detail-value">${order.esimDetails.operator}</span>
+                                    </div>
+                                ` : ''}
+                                ${order.esimDetails.expiryDate ? `
+                                    <div class="detail-row">
+                                        <span class="detail-label">تاريخ الانتهاء</span>
+                                        <span class="detail-value">${formatDate(order.esimDetails.expiryDate)}</span>
+                                    </div>
+                                ` : ''}
+                            </div>
+                        `;
+                    }
+                    
+                    let timerDisplay = '';
+                    if (timeRemaining && timeRemaining.seconds > 0 && order.status === 'accepted') {
+                        const mins = timeRemaining.minutes;
+                        const secs = timeRemaining.seconds % 60;
+                        timerDisplay = `
+                            <div style="background:rgba(0,212,170,0.08);padding:12px;border-radius:12px;text-align:center;margin:12px 0;border:1px solid rgba(0,212,170,0.1);">
+                                <div style="font-size:13px;color:var(--gray);">⏳ الوقت المتبقي للسحب</div>
+                                <div style="font-size:32px;font-weight:900;color:var(--secondary);font-variant-numeric:tabular-nums;" id="detailTimer">
+                                    ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    let actionHtml = '';
+                    if (order.status === 'accepted' && timeRemaining && timeRemaining.seconds > 0) {
+                        actionHtml = `
+                            <button class="btn btn-success mt-12" onclick="confirmOrderCompletion('${order._id}')">
+                                <i class="fas fa-check-circle"></i> تأكيد الاستلام
+                            </button>
+                        `;
+                    }
+                    
+                    if (order.status === 'delivered') {
+                        actionHtml = `
+                            <button class="btn btn-primary mt-12" onclick="activateEsim('${order._id}')">
+                                <i class="fas fa-play"></i> تفعيل البطاقة
+                            </button>
+                        `;
+                    }
+                    
+                    if (order.status === 'pending') {
+                        actionHtml = `
+                            <div style="background:rgba(255,184,0,0.08);padding:12px;border-radius:12px;text-align:center;color:var(--warning);border:1px solid rgba(255,184,0,0.1);">
+                                <i class="fas fa-spinner fa-spin"></i> جاري مراجعة الطلب من قبل الإدارة
+                            </div>
+                        `;
+                    }
+                    
+                    if (order.status === 'rejected') {
+                        actionHtml = `
+                            <div style="background:rgba(255,61,113,0.08);padding:12px;border-radius:12px;text-align:center;color:var(--danger);border:1px solid rgba(255,61,113,0.1);">
+                                <i class="fas fa-times-circle"></i> تم رفض الطلب
+                                ${order.rejectionReason ? `<div style="font-size:13px;margin-top:4px;color:var(--gray);">السبب: ${order.rejectionReason}</div>` : ''}
+                            </div>
+                            <button class="btn btn-primary mt-12" onclick="closeModal('orderDetailModal');openOrderModal();">
+                                <i class="fas fa-plus"></i> طلب جديد
+                            </button>
+                        `;
+                    }
+                    
+                    if (order.status === 'expired') {
+                        actionHtml = `
+                            <div style="background:rgba(255,61,113,0.08);padding:12px;border-radius:12px;text-align:center;color:var(--danger);border:1px solid rgba(255,61,113,0.1);">
+                                <i class="fas fa-clock"></i> انتهت صلاحية هذا الطلب
+                            </div>
+                            <button class="btn btn-primary mt-12" onclick="closeModal('orderDetailModal');openOrderModal();">
+                                <i class="fas fa-plus"></i> طلب جديد
+                            </button>
+                        `;
+                    }
+                    
+                    if (order.status === 'completed') {
+                        actionHtml = `
+                            <div style="background:rgba(0,212,170,0.08);padding:12px;border-radius:12px;text-align:center;color:var(--secondary);border:1px solid rgba(0,212,170,0.1);">
+                                <i class="fas fa-check-circle"></i> تم إتمام عملية الطلب بنجاح
+                            </div>
+                        `;
+                    }
+                    
+                    let screenshotsHtml = '';
+                    if (order.screenshots && order.screenshots.length > 0) {
+                        screenshotsHtml = `
+                            <div style="margin-top:12px;">
+                                <div style="font-size:13px;font-weight:600;color:var(--gray);">📎 المرفقات</div>
+                                <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;">
+                                    ${order.screenshots.map(s => `
+                                        <a href="/${s}" target="_blank" style="background:rgba(255,255,255,0.05);padding:4px 12px;border-radius:8px;font-size:12px;color:var(--primary-light);text-decoration:none;border:1px solid var(--glass-border);display:flex;align-items:center;gap:4px;">
+                                            <i class="fas fa-file-image"></i> صورة ${order.screenshots.indexOf(s) + 1}
+                                        </a>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        `;
+                    }
+                    
+                    DOM.orderDetailContent.innerHTML = `
+                        <div style="display:grid;gap:8px;">
+                            <div class="flex-between">
+                                <span style="color:var(--gray);">رقم الطلب</span>
+                                <span style="font-weight:600;">#${order._id.slice(-8)}</span>
+                            </div>
+                            <div class="flex-between">
+                                <span style="color:var(--gray);">الدولة</span>
+                                <span>${getCountryFlag(order.country)} ${order.country}</span>
+                            </div>
+                            <div class="flex-between">
+                                <span style="color:var(--gray);">المبلغ</span>
+                                <span style="font-weight:700;font-size:20px;color:var(--secondary);">${formatCurrency(order.amount)} ج.م</span>
+                            </div>
+                            <div class="flex-between">
+                                <span style="color:var(--gray);">النوع</span>
+                                <span>${getEsimTypeLabel(order.esimType)}</span>
+                            </div>
+                            <div class="flex-between">
+                                <span style="color:var(--gray);">رقم الهاتف</span>
+                                <span>${order.phoneNumber}</span>
+                            </div>
+                            <div class="flex-between">
+                                <span style="color:var(--gray);">الحالة</span>
+                                <span class="order-status ${getStatusClass(order.status)}">${getStatusText(order.status)}</span>
+                            </div>
+                            <div class="flex-between">
+                                <span style="color:var(--gray);">تاريخ الطلب</span>
+                                <span>${formatDate(order.createdAt)}</span>
+                            </div>
+                            ${order.acceptedAt ? `<div class="flex-between"><span style="color:var(--gray);">تاريخ القبول</span><span>${formatDate(order.acceptedAt)}</span></div>` : ''}
+                            ${order.deliveredAt ? `<div class="flex-between"><span style="color:var(--gray);">تاريخ التسليم</span><span>${formatDate(order.deliveredAt)}</span></div>` : ''}
+                            ${order.completedAt ? `<div class="flex-between"><span style="color:var(--gray);">تاريخ الإكمال</span><span>${formatDate(order.completedAt)}</span></div>` : ''}
+                            ${order.notes ? `<div class="flex-between"><span style="color:var(--gray);">ملاحظات</span><span>${order.notes}</span></div>` : ''}
+                            ${order.adminNotes ? `<div class="flex-between"><span style="color:var(--gray);">ملاحظات الإدارة</span><span>${order.adminNotes}</span></div>` : ''}
+                            ${esimHtml}
+                            ${screenshotsHtml}
+                            ${timerDisplay}
+                        </div>
+                        <div style="margin-top:16px;">
+                            ${actionHtml}
+                        </div>
+                    `;
+                    
+                    DOM.orderDetailModal.classList.add('active');
+                    
+                    // بدء المؤقت في التفاصيل
+                    if (timeRemaining && timeRemaining.seconds > 0 && order.status === 'accepted') {
+                        if (APP.timerIntervals['detail']) {
+                            clearInterval(APP.timerIntervals['detail']);
+                        }
+                        
+                        const expiresAt = new Date(order.expiresAt).getTime();
+                        APP.timerIntervals['detail'] = setInterval(() => {
+                            const now = Date.now();
+                            const remaining = Math.max(0, Math.floor((expiresAt - now) / 1000));
+                            const timerEl = document.getElementById('detailTimer');
+                            if (timerEl) {
+                                if (remaining <= 0) {
+                                    clearInterval(APP.timerIntervals['detail']);
+                                    timerEl.textContent = '⏰ انتهى الوقت';
+                                    timerEl.style.color = 'var(--danger)';
+                                    DOM.orderDetailContent.innerHTML += `
+                                        <div style="background:rgba(255,61,113,0.1);padding:12px;border-radius:12px;text-align:center;color:var(--danger);margin-top:12px;border:1px solid rgba(255,61,113,0.2);">
+                                            <i class="fas fa-clock"></i> انتهت صلاحية هذا الطلب
+                                        </div>
+                                    `;
+                                    const btn = document.querySelector('#orderDetailContent .btn-success');
+                                    if (btn) btn.disabled = true;
+                                    fetchOrders();
+                                    return;
+                                }
+                                const mins = Math.floor(remaining / 60);
+                                const secs = remaining % 60;
+                                timerEl.textContent = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                                if (remaining < 60) {
+                                    timerEl.style.color = 'var(--danger)';
+                                } else if (remaining < 120) {
+                                    timerEl.style.color = 'var(--warning)';
+                                }
+                            }
+                        }, 1000);
+                    }
+                }
+            } catch (error) {
+                console.error('خطأ في جلب تفاصيل الطلب:', error);
+            }
+        };
+        
+        // تأكيد إكمال الطلب
+        window.confirmOrderCompletion = async function(orderId) {
+            try {
+                const data = await apiCall(`/api/admin/esim/order/${orderId}/complete`, {
+                    method: 'POST'
+                });
+                if (data.success) {
+                    showToast('✔️ اكتمل', 'تم إكمال الطلب بنجاح', 'success');
+                    DOM.orderDetailModal.classList.remove('active');
+                    fetchOrders();
+                    fetchBalance();
+                }
+            } catch (error) {
+                console.error('خطأ في إكمال الطلب:', error);
+            }
+        };
+        
+        // تفعيل بطاقة eSIM
+        window.activateEsim = async function(orderId) {
+            showToast('ℹ️ جاري التفعيل', 'سيتم تفعيل بطاقة eSIM', 'info');
+            // في الواقع، هذه العملية تتم من خلال المسؤول
+            // العميل يضغط طلب تفعيل ويتم إشعار المسؤول
+            showToast('📱 تم الإرسال', 'تم إرسال طلب التفعيل للإدارة', 'success');
+            
+            // إرسال إشعار للمسؤول عبر WebSocket
+            if (APP.ws && APP.ws.readyState === WebSocket.OPEN) {
+                APP.ws.send(JSON.stringify({
+                    type: 'activate_esim',
+                    orderId: orderId,
+                    userId: APP.user.id,
+                    username: APP.user.username
+                }));
+            }
+        };
+        
+        // قراءة الإشعار
+        window.markNotificationRead = async function(notificationId) {
+            try {
+                await apiCall(`/api/notifications/${notificationId}/read`, {
+                    method: 'PUT'
+                });
+                fetchNotifications();
+            } catch (error) {
+                console.error('خطأ في تحديث الإشعار:', error);
+            }
+        };
+        
+        // ================================================================
+        // إدارة المودال
+        // ================================================================
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+            document.body.style.overflow = '';
+        }
+        
+        function openOrderModal() {
+            DOM.orderModal.classList.add('active');
+            fetchBalance();
+            // تحميل الدول
+            const select = DOM.orderCountry;
+            select.innerHTML = '<option value="">اختر الدولة</option>' + 
+                APP.countries.map(c => `
+                    <option value="${c}">${getCountryFlag(c)} ${c}</option>
+                `).join('');
+        }
+        
+        // ================================================================
+        // إنشاء طلب eSIM
+        // ================================================================
+        async function createOrder(amount, country, esimType, phone, notes, files) {
+            const formData = new FormData();
+            formData.append('amount', amount);
+            formData.append('country', country);
+            formData.append('esimType', esimType || 'vodafone');
+            formData.append('phoneNumber', phone);
+            if (notes) formData.append('notes', notes);
+            
+            // إضافة تفاصيل الباقة إذا تم اختيارها
+            const pkgId = DOM.orderPackage.value;
+            if (pkgId) {
+                formData.append('packageId', pkgId);
+            }
+            
+            files.forEach(file => {
+                formData.append('screenshots', file);
+            });
+            
+            try {
+                const response = await fetch('/api/esim/order/create', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${APP.token}`,
+                    },
+                    body: formData,
+                });
+                
+                const data = await response.json();
+                if (!response.ok) {
+                    throw new Error(data.message || 'حدث خطأ في إنشاء الطلب');
+                }
+                
+                showToast('✅ تم إنشاء الطلب', 'تم إنشاء طلب eSIM بنجاح، جاري المراجعة', 'success');
+                DOM.orderModal.classList.remove('active');
+                fetchOrders();
+                fetchBalance();
+                return data;
+            } catch (error) {
+                showToast('خطأ', error.message, 'error');
+                throw error;
+            }
+        }
+        
+        // ================================================================
+        // إدارة واجهة المستخدم
+        // ================================================================
+        function showAuthPage() {
+            DOM.authPage.classList.remove('hidden');
+            DOM.mainPage.classList.add('hidden');
+            DOM.loginForm.classList.remove('hidden');
+            DOM.registerForm.classList.add('hidden');
+        }
+        
+        function showMainPage() {
+            DOM.authPage.classList.add('hidden');
+            DOM.mainPage.classList.remove('hidden');
+        }
+        
+        function initApp() {
+            if (APP.token && APP.user) {
+                showMainPage();
+                fetchProfile();
+                fetchBalance();
+                fetchOrders();
+                fetchNotifications();
+                fetchPackages();
+                renderCountries();
+                connectWebSocket();
+            } else {
+                showAuthPage();
+            }
+        }
+        
+        // ================================================================
+        // أحداث (Event Listeners)
+        // ================================================================
+        
+        // تسجيل الدخول
+        DOM.loginBtn.addEventListener('click', async () => {
+            const username = DOM.loginUsername.value.trim();
+            const password = DOM.loginPassword.value.trim();
+            
+            if (!username || !password) {
+                showToast('تنبيه', 'يرجى ملء جميع الحقول', 'warning');
+                return;
+            }
+            
+            DOM.loginBtn.disabled = true;
+            DOM.loginBtn.innerHTML = '<span class="spinner"></span> جاري التحقق...';
+            
+            try {
+                await login(username, password);
+            } catch (error) {
+                // الخطأ يظهر في الـ Toast
+            } finally {
+                DOM.loginBtn.disabled = false;
+                DOM.loginBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> تسجيل الدخول';
+            }
+        });
+        
+        // إدخال كلمة المرور بالضغط على Enter
+        DOM.loginPassword.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                DOM.loginBtn.click();
+            }
+        });
+        
+        DOM.loginUsername.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                DOM.loginPassword.focus();
+            }
+        });
+        
+        // التسجيل
+        DOM.registerBtn.addEventListener('click', async () => {
+            const username = DOM.regUsername.value.trim();
+            const email = DOM.regEmail.value.trim();
+            const password = DOM.regPassword.value.trim();
+            const fullName = DOM.regFullName.value.trim();
+            const phone = DOM.regPhone.value.trim();
+            const country = DOM.regCountry.value.trim();
+            const referral = DOM.regReferral.value.trim();
+            
+            if (!username || !email || !password) {
+                showToast('تنبيه', 'يرجى ملء جميع الحقول المطلوبة', 'warning');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showToast('تنبيه', 'كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'warning');
+                return;
+            }
+            
+            DOM.registerBtn.disabled = true;
+            DOM.registerBtn.innerHTML = '<span class="spinner"></span> جاري الإنشاء...';
+            
+            try {
+                await register(username, email, password, fullName, phone, country, referral);
+            } catch (error) {
+                // الخطأ يظهر في الـ Toast
+            } finally {
+                DOM.registerBtn.disabled = false;
+                DOM.registerBtn.innerHTML = '<i class="fas fa-check"></i> إنشاء الحساب';
+            }
+        });
+        
+        // التبديل بين صفحات الدخول والتسجيل
+        DOM.showRegisterBtn.addEventListener('click', () => {
+            DOM.loginForm.classList.add('hidden');
+            DOM.registerForm.classList.remove('hidden');
+        });
+        
+        DOM.showLoginBtn.addEventListener('click', () => {
+            DOM.loginForm.classList.remove('hidden');
+            DOM.registerForm.classList.add('hidden');
+        });
+        
+        // تسجيل الخروج
+        DOM.logoutBtn.addEventListener('click', logout);
+        
+        // فتح مودال الطلب
+        DOM.newOrderBtn.addEventListener('click', openOrderModal);
+        DOM.requestOrderBtn.addEventListener('click', openOrderModal);
+        
+        // إغلاق مودال الطلب
+        DOM.closeOrderModal.addEventListener('click', () => closeModal('orderModal'));
+        DOM.orderModal.addEventListener('click', (e) => {
+            if (e.target === DOM.orderModal) closeModal('orderModal');
+        });
+        
+        // عرض الطلبات
+        DOM.ordersBtn.addEventListener('click', () => {
+            DOM.ordersSection.classList.toggle('hidden');
+            if (!DOM.ordersSection.classList.contains('hidden')) {
+                fetchOrders();
+            }
+        });
+        
+        DOM.closeOrdersBtn.addEventListener('click', () => {
+            DOM.ordersSection.classList.add('hidden');
+        });
+        
+        // فلتر الطلبات
+        DOM.orderFilter.addEventListener('change', fetchOrders);
+        
+        // عرض الإشعارات
+        DOM.notificationsBtn.addEventListener('click', () => {
+            openModal('notificationsModal');
+            fetchNotifications();
+        });
+        
+        DOM.closeNotificationsModal.addEventListener('click', () => closeModal('notificationsModal'));
+        DOM.notificationsModal.addEventListener('click', (e) => {
+            if (e.target === DOM.notificationsModal) closeModal('notificationsModal');
+        });
+        
+        // قراءة جميع الإشعارات
+        DOM.markAllReadBtn.addEventListener('click', async () => {
+            try {
+                await apiCall('/api/notifications/read-all', { method: 'PUT' });
+                fetchNotifications();
+                showToast('✅ تم', 'تم قراءة جميع الإشعارات', 'success');
+            } catch (error) {
+                console.error('خطأ في قراءة الإشعارات:', error);
+            }
+        });
+        
+        // عرض الملف الشخصي
+        DOM.profileBtn.addEventListener('click', () => {
+            openModal('profileModal');
+            fetchProfile();
+        });
+        
+        DOM.closeProfileModal.addEventListener('click', () => closeModal('profileModal'));
+        DOM.profileModal.addEventListener('click', (e) => {
+            if (e.target === DOM.profileModal) closeModal('profileModal');
+        });
+        
+        // نسخ كود الإحالة
+        DOM.copyReferralBtn.addEventListener('click', () => {
+            const code = DOM.profileReferralCode.value;
+            if (code) {
+                navigator.clipboard.writeText(code).then(() => {
+                    showToast('📋 تم النسخ', 'تم نسخ كود الإحالة', 'success');
+                }).catch(() => {
+                    // طريقة بديلة
+                    const input = DOM.profileReferralCode;
+                    input.select();
+                    document.execCommand('copy');
+                    showToast('📋 تم النسخ', 'تم نسخ كود الإحالة', 'success');
+                });
+            }
+        });
+        
+        // تحديث الملف الشخصي
+        DOM.profileForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fullName = DOM.profileFullName.value.trim();
+            const phone = DOM.profilePhone.value.trim();
+            const country = DOM.profileCountry.value.trim();
+            
+            try {
+                const data = await apiCall('/api/user/profile', {
+                    method: 'PUT',
+                    body: { fullName, phone, country }
+                });
+                if (data.success) {
+                    showToast('✅ تم التحديث', 'تم تحديث الملف الشخصي بنجاح', 'success');
+                    fetchProfile();
+                    closeModal('profileModal');
+                }
+            } catch (error) {
+                console.error('خطأ في تحديث الملف الشخصي:', error);
+            }
+        });
+        
+        // رفع الملفات
+        DOM.fileUploadZone.addEventListener('click', () => {
+            DOM.fileInput.click();
+        });
+        
+        DOM.fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            const totalFiles = APP.selectedFiles.length + files.length;
+            
+            if (totalFiles > 5) {
+                showToast('تنبيه', 'الحد الأقصى 5 ملفات فقط', 'warning');
+                DOM.fileInput.value = '';
+                return;
+            }
+            
+            files.forEach(file => {
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('تنبيه', `الملف ${file.name} حجمه أكبر من 5 ميجا`, 'warning');
+                    return;
+                }
+                APP.selectedFiles.push(file);
+            });
+            
+            updateFileList();
+            DOM.fileInput.value = '';
+        });
+        
+        // سحب وإفلات الملفات
+        DOM.fileUploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            DOM.fileUploadZone.classList.add('dragover');
+        });
+        
+        DOM.fileUploadZone.addEventListener('dragleave', () => {
+            DOM.fileUploadZone.classList.remove('dragover');
+        });
+        
+        DOM.fileUploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            DOM.fileUploadZone.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            const totalFiles = APP.selectedFiles.length + files.length;
+            
+            if (totalFiles > 5) {
+                showToast('تنبيه', 'الحد الأقصى 5 ملفات فقط', 'warning');
+                return;
+            }
+            
+            files.forEach(file => {
+                if (file.size > 5 * 1024 * 1024) {
+                    showToast('تنبيه', `الملف ${file.name} حجمه أكبر من 5 ميجا`, 'warning');
+                    return;
+                }
+                APP.selectedFiles.push(file);
+            });
+            
+            updateFileList();
+        });
+        
+        function updateFileList() {
+            const list = DOM.fileList;
+            if (APP.selectedFiles.length === 0) {
+                list.innerHTML = '';
+                return;
+            }
+            
+            list.innerHTML = APP.selectedFiles.map((file, index) => `
+                <div class="file-item">
+                    <i class="fas fa-file-image"></i>
+                    ${file.name.substring(0, 20)}${file.name.length > 20 ? '...' : ''}
+                    <span class="remove-file" onclick="removeFile(${index})">
+                        <i class="fas fa-times"></i>
+                    </span>
+                </div>
+            `).join('');
+        }
+        
+        window.removeFile = function(index) {
+            APP.selectedFiles.splice(index, 1);
+            updateFileList();
+        };
+        
+        // إرسال طلب eSIM
+        DOM.orderForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const country = DOM.orderCountry.value;
+            const packageId = DOM.orderPackage.value;
+            const phone = DOM.orderPhone.value.trim();
+            const amount = DOM.orderAmount.value.trim();
+            const notes = DOM.orderNotes.value.trim();
+            
+            if (!country) {
+                showToast('تنبيه', 'يرجى اختيار الدولة', 'warning');
+                return;
+            }
+            
+            if (!phone) {
+                showToast('تنبيه', 'يرجى إدخال رقم الهاتف', 'warning');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                showToast('تنبيه', 'يرجى إدخال مبلغ صحيح', 'warning');
+                return;
+            }
+            
+            if (parseFloat(amount) > APP.balance) {
+                showToast('تنبيه', 'الرصيد غير كافٍ', 'error');
+                return;
+            }
+            
+            DOM.submitOrderBtn.disabled = true;
+            DOM.submitOrderBtn.innerHTML = '<span class="spinner"></span> جاري الإرسال...';
+            
+            try {
+                await createOrder(amount, country, 'vodafone', phone, notes, APP.selectedFiles);
+                DOM.orderForm.reset();
+                APP.selectedFiles = [];
+                updateFileList();
+                DOM.orderPackage.innerHTML = '<option value="">اختر الباقة</option>';
+                DOM.orderCountry.innerHTML = '<option value="">اختر الدولة</option>';
+            } catch (error) {
+                // الخطأ يظهر في الـ Toast
+            } finally {
+                DOM.submitOrderBtn.disabled = false;
+                DOM.submitOrderBtn.innerHTML = '<i class="fas fa-paper-plane"></i> تأكيد الطلب';
+            }
+        });
+        
+        // إغلاق مودال التفاصيل
+        DOM.closeDetailModal.addEventListener('click', () => {
+            closeModal('orderDetailModal');
+            if (APP.timerIntervals['detail']) {
+                clearInterval(APP.timerIntervals['detail']);
+                delete APP.timerIntervals['detail'];
+            }
+        });
+        
+        DOM.orderDetailModal.addEventListener('click', (e) => {
+            if (e.target === DOM.orderDetailModal) {
+                closeModal('orderDetailModal');
+                if (APP.timerIntervals['detail']) {
+                    clearInterval(APP.timerIntervals['detail']);
+                    delete APP.timerIntervals['detail'];
+                }
+            }
+        });
+        
+        // ================================================================
+        // التحميل الأولي
+        // ================================================================
+        (function init() {
+            // استعادة الجلسة من localStorage
+            const savedToken = localStorage.getItem('esim_token');
+            const savedUser = localStorage.getItem('esim_user');
+            
+            if (savedToken && savedUser) {
+                try {
+                    APP.token = savedToken;
+                    APP.user = JSON.parse(savedUser);
+                    initApp();
+                } catch (e) {
+                    localStorage.removeItem('esim_token');
+                    localStorage.removeItem('esim_user');
+                    showAuthPage();
+                }
+            } else {
+                showAuthPage();
+            }
+            
+            console.log('🚀 تم تحميل نظام eSIM بنجاح!');
+            console.log('📱 نظام إدارة بطاقات eSIM الرقمية v3.0.0');
+            console.log('💡 للتجربة: username: test, password: 123456');
+        })();
+    </script>
+</body>
+</html>
